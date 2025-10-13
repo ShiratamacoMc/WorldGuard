@@ -568,7 +568,7 @@ public class EventAbstractionListener extends AbstractListener {
                         }
                     }
 
-                    if (event.isCancelled()) {
+                    if (event.useInteractedBlock() == Result.DENY) {
                         playDenyEffect(event.getPlayer(), clicked.getLocation().add(0.5, 1, 0.5));
                     }
                 }
@@ -968,6 +968,7 @@ public class EventAbstractionListener extends AbstractListener {
     }
 
     @EventHandler(ignoreCancelled = true)
+    @SuppressWarnings("deprecation")
     public void onPlayerPickupItem(PlayerPickupItemEvent event) {
         Item item = event.getItem();
         pickupDebounce.debounce(event.getPlayer(), item, event, new DestroyEntityEvent(event, create(event.getPlayer()), event.getItem()));

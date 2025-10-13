@@ -85,7 +85,7 @@ public class BukkitWorldGuardPlatform implements WorldGuardPlatform, I18nSupport
 
     @Override
     public String getPlatformVersion() {
-        return WorldGuardPlugin.inst().getDescription().getVersion();
+        return WorldGuardPlugin.inst().getPluginMeta().getVersion();
     }
 
     @Override
@@ -110,7 +110,7 @@ public class BukkitWorldGuardPlatform implements WorldGuardPlatform, I18nSupport
 
     @Override
     public void broadcastNotification(String message) {
-        Bukkit.broadcast(message, "worldguard.notify");
+        Bukkit.broadcast(net.kyori.adventure.text.Component.text(message), "worldguard.notify");
         Set<Permissible> subs = Bukkit.getPluginManager().getPermissionSubscriptions("worldguard.notify");
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             if (!(subs.contains(player) && player.hasPermission("worldguard.notify")) &&

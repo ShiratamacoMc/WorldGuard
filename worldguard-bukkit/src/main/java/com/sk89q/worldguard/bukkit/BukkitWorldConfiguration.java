@@ -80,6 +80,7 @@ public class BukkitWorldConfiguration extends YamlWorldConfiguration {
      * @param worldName The world name that this BukkitWorldConfiguration is for.
      * @param parentConfig The parent configuration to read defaults from
      */
+    @SuppressWarnings("this-escape")
     public BukkitWorldConfiguration(WorldGuardPlugin plugin, String worldName, YAMLProcessor parentConfig) {
         File baseFolder = new File(plugin.getDataFolder(), "worlds/" + worldName);
         File configFile = new File(baseFolder, "config.yml");
@@ -167,7 +168,7 @@ public class BukkitWorldConfiguration extends YamlWorldConfiguration {
 
         blockPotions = new HashSet<>();
         for (String potionName : getStringList("gameplay.block-potions", null)) {
-            PotionEffectType effect = PotionEffectType.getByName(potionName);
+            PotionEffectType effect = org.bukkit.Registry.EFFECT.get(org.bukkit.NamespacedKey.minecraft(potionName.toLowerCase()));
 
             if (effect == null) {
                 log.warning("Unknown potion effect type '" + potionName + "'");
@@ -297,7 +298,7 @@ public class BukkitWorldConfiguration extends YamlWorldConfiguration {
         explosionFlagCancellation = getBoolean("regions.explosion-flags-block-entity-damage", true);
         highFreqFlags = getBoolean("regions.high-frequency-flags", false);
         checkLiquidFlow = getBoolean("regions.protect-against-liquid-flow", false);
-        regionWand = convertLegacyItem(getString("regions.wand", ItemTypes.LEATHER.getId()));
+        regionWand = convertLegacyItem(getString("regions.wand", ItemTypes.LEATHER.id()));
         maxClaimVolume = getInt("regions.max-claim-volume", 30000);
         claimOnlyInsideExistingRegions = getBoolean("regions.claim-only-inside-existing-regions", false);
         setParentOnClaim = getString("regions.set-parent-on-claim", "");
@@ -394,6 +395,8 @@ public class BukkitWorldConfiguration extends YamlWorldConfiguration {
         }
 
         // Print an overview of settings
+        // Commented out to prevent log spam
+        /*
         if (summaryOnStart) {
             log.log(Level.INFO, blockTNTExplosions
                     ? "(" + worldName + ") TNT ignition is blocked."
@@ -418,6 +421,7 @@ public class BukkitWorldConfiguration extends YamlWorldConfiguration {
                 }
             }
         }
+        */
 
         config.setHeader(CONFIG_HEADER);
 

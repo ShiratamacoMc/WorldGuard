@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("deprecation")
 public class BukkitStringMatcher implements StringMatcher {
 
     @Override

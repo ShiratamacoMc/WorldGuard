@@ -55,7 +55,7 @@ public class WorldGuardWorldListener extends AbstractListener {
             }
 
             if (removed > 50) {
-                log.info("Halt-Act: " + removed + " entities (>50) auto-removed from " + event.getChunk().toString());
+                log.info(getLogMessage("log.halt-act-chunk", "count", String.valueOf(removed), "chunk", event.getChunk().toString()));
             }
         }
     }

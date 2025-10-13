@@ -46,7 +46,6 @@ import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -112,6 +111,7 @@ public class RegionProtectionListener extends AbstractListener {
             Long lastTime = WGMetadata.getIfPresent(player, DENY_MESSAGE_KEY, Long.class);
             if (lastTime == null || now - lastTime >= LAST_MESSAGE_DELAY_MS) {
                 LocalPlayer localPlayer = getPlugin().wrapPlayer(player);
+                @SuppressWarnings("deprecation")
                 String message = getRegionQuery().queryValue(BukkitAdapter.adapt(location), localPlayer, Flags.DENY_MESSAGE);
                 formatAndSendDenyMessage(what, localPlayer, message);
                 WGMetadata.put(player, DENY_MESSAGE_KEY, now);
@@ -119,11 +119,13 @@ public class RegionProtectionListener extends AbstractListener {
         }
     }
 
+    @SuppressWarnings("deprecation")
     static void formatAndSendDenyMessage(String what, LocalPlayer localPlayer, String message) {
         if (message == null || message.isEmpty()) return;
         message = WorldGuard.getInstance().getPlatform().getMatcher().replaceMacros(localPlayer, message);
         message = CommandUtils.replaceColorMacros(message);
-        localPlayer.printRaw(message.replace("%what%", what));
+        String formattedMessage = message.replace("%what%", what);
+        localPlayer.printRaw(formattedMessage);
     }
 
 
@@ -549,7 +551,8 @@ public class RegionProtectionListener extends AbstractListener {
                     long now = System.currentTimeMillis();
                     Long lastTime = WGMetadata.getIfPresent(player, DISEMBARK_MESSAGE_KEY, Long.class);
                     if (lastTime == null || now - lastTime >= LAST_MESSAGE_DELAY_MS) {
-                        player.sendMessage("" + ChatColor.GOLD + "Don't disembark here!" + ChatColor.GRAY + " You can't get back on.");
+                        String message = getPlugin().getMessageManager().getMessage("player.disembark-warning");
+                        getPlugin().getMiniMessageHelper().sendMessage(player, message);
                         WGMetadata.put(player, DISEMBARK_MESSAGE_KEY, now);
                     }
 

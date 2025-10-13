@@ -28,9 +28,15 @@ import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.config.WorldConfiguration;
 import com.sk89q.worldguard.util.MessagingUtil;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
+import org.bukkit.BanList;
 import org.bukkit.BanList.Type;
 import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
+
+import java.time.Duration;
 
 public class BukkitPlayer extends com.sk89q.worldedit.bukkit.BukkitPlayer implements LocalPlayer {
 
@@ -65,15 +71,16 @@ public class BukkitPlayer extends com.sk89q.worldedit.bukkit.BukkitPlayer implem
     @Override
     public void kick(String msg) {
         if (!silenced) {
-            getPlayer().kickPlayer(msg);
+            getPlayer().kick(Component.text(msg));
         }
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void ban(String msg) {
         if (!silenced) {
-            Bukkit.getBanList(Type.NAME).addBan(getName(), null, null, null);
-            getPlayer().kickPlayer(msg);
+            Bukkit.getBanList(Type.NAME).addBan(getName(), msg, null, null);
+            getPlayer().kick(Component.text(msg));
         }
     }
 
@@ -88,6 +95,7 @@ public class BukkitPlayer extends com.sk89q.worldedit.bukkit.BukkitPlayer implem
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public double getMaxHealth() {
         return getPlayer().getMaxHealth();
     }
@@ -176,11 +184,13 @@ public class BukkitPlayer extends com.sk89q.worldedit.bukkit.BukkitPlayer implem
     @Override
     public void sendTitle(String title, String subtitle) {
         WorldConfiguration config = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(getWorld());
+        Title.Times times;
         if (config != null && config.forceDefaultTitleTimes) {
-            getPlayer().sendTitle(title, subtitle, 10, 70, 20);
+            times = Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofSeconds(1));
         } else {
-            getPlayer().sendTitle(title, subtitle, -1, -1, -1);
+            times = Title.Times.times(Duration.ZERO, Duration.ofSeconds(3), Duration.ZERO);
         }
+        getPlayer().showTitle(Title.title(Component.text(title), Component.text(subtitle), times));
     }
 
     @Override
@@ -189,6 +199,7 @@ public class BukkitPlayer extends com.sk89q.worldedit.bukkit.BukkitPlayer implem
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void teleport(Location location, String successMessage, String failMessage) {
         PaperLib.teleportAsync(getPlayer(), BukkitAdapter.adapt(location))
                 .thenApply(success -> {
@@ -210,6 +221,7 @@ public class BukkitPlayer extends com.sk89q.worldedit.bukkit.BukkitPlayer implem
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void printRaw(String msg) {
         if (!silenced) {
             super.printRaw(msg);

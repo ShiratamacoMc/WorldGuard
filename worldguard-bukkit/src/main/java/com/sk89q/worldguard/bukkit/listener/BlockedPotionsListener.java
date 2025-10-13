@@ -24,7 +24,6 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.bukkit.event.entity.DamageEntityEvent;
 import com.sk89q.worldguard.bukkit.event.inventory.UseItemEvent;
 import com.sk89q.worldguard.bukkit.util.Entities;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
@@ -45,6 +44,8 @@ import java.util.List;
  */
 public class BlockedPotionsListener extends AbstractListener {
 
+    private final ListenerMessageHelper messageHelper;
+
     /**
      * Construct the listener.
      *
@@ -52,6 +53,7 @@ public class BlockedPotionsListener extends AbstractListener {
      */
     public BlockedPotionsListener(WorldGuardPlugin plugin) {
         super(plugin);
+        this.messageHelper = new ListenerMessageHelper(plugin);
     }
 
     private PotionEffectType getBlockedEffectByArrow(Arrow arrow, BukkitWorldConfiguration wcfg) {
@@ -95,8 +97,8 @@ public class BlockedPotionsListener extends AbstractListener {
                 if (getPlugin().hasPermission(player, "worldguard.override.potions")) {
                     return;
                 }
-                player.sendMessage(ChatColor.RED + "Sorry, arrows with "
-                        + blockedEffect.getName() + " are presently disabled.");
+                messageHelper.sendMessage(player, "potion.arrow-blocked", 
+                    "effect", blockedEffect.getKey().value());
             }
             event.setCancelled(true);
         }
@@ -141,15 +143,13 @@ public class BlockedPotionsListener extends AbstractListener {
                     if (getPlugin().hasPermission(player, "worldguard.override.potions")) {
                         if (wcfg.blockPotionsAlways && (item.getType() == Material.SPLASH_POTION
                                 || item.getType() == Material.LINGERING_POTION)) {
-                            player.sendMessage(ChatColor.RED + "Sorry, potions with " +
-                                    blockedEffect.getName() + " can't be thrown, " +
-                                    "even if you have a permission to bypass it, " +
-                                    "due to limitations (and because overly-reliable potion blocking is on).");
+                            messageHelper.sendMessage(player, "potion.splash-potion-blocked", 
+                                "effect", blockedEffect.getKey().value());
                             event.setCancelled(true);
                         }
                     } else {
-                        player.sendMessage(ChatColor.RED + "Sorry, potions with "
-                                + blockedEffect.getName() + " are presently disabled.");
+                        messageHelper.sendMessage(player, "potion.potion-blocked", 
+                            "effect", blockedEffect.getKey().value());
                         event.setCancelled(true);
                     }
                 } else {

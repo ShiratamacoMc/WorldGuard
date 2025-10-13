@@ -135,7 +135,7 @@ public class WorldGuardEntityListener extends AbstractListener {
         if (wcfg == null) return;
 
         if (event instanceof PlayerDeathEvent && wcfg.disableDeathMessages) {
-            ((PlayerDeathEvent) event).setDeathMessage("");
+            ((PlayerDeathEvent) event).deathMessage(null);
         }
     }
 
@@ -725,6 +725,7 @@ public class WorldGuardEntityListener extends AbstractListener {
                 if (localPlayer != null && !cause.isIndirect()) {
                     // NB there is no way to cancel the teleport without PTA (since PlayerPortal doesn't have block info)
                     // removing PTA was a mistake
+                    @SuppressWarnings("deprecation")
                     String message = regions.queryValue(localPlayer, Flags.DENY_MESSAGE);
                     RegionProtectionListener.formatAndSendDenyMessage("create portals", localPlayer, message);
                 }

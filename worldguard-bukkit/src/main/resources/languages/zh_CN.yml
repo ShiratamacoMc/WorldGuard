@@ -145,8 +145,12 @@ chest:
   protected-chest: "<dark_red>此箱子受到保护。</dark_red>"
   adjacent-not-owned: "<dark_red>你不拥有相邻的箱子。</dark_red>"
   protected-by-other: "<red>此箱子已被 <owner> 保护。</red>"
-  protected-by-you: "<yellow>此箱子现已受到保护。</yellow>"
+  protected-by-you: "<yellow>上面的箱子或双箱子现已受到保护。</yellow>"
   unprotected: "<red>此箱子不再受到保护。</red>"
+  sign-must-be-post: "<red>[Lock] 标志必须是立式告示牌，而不是墙上的告示牌。</red>"
+  owner-must-be-you: "<red>第一个所有者行必须是你的名字。</red>"
+  unsafe-block: "<red>你放置此标志的方块不安全。</red>"
+  protection-disabled: "<red>WorldGuard 的箱子保护功能已禁用。</red>"
 
 # 药水消息
 potion:
@@ -189,6 +193,18 @@ system:
   platform-info: "* <platform> (<version>)"
   save-warning: "<yellow>警告：区域数据可能无法保存。</yellow>"
   spawn-overlap: "<red>警告：此区域与出生点重叠。</red>"
+  halt-activity: "<yellow>密集的服务器活动已被暂停。</yellow>"
+  fire-spread-disabled: "<yellow>此世界的火焰蔓延目前已全局禁用。</yellow>"
+  host-key-invalid: "你没有使用有效的主机密钥加入！"
+
+# 控制台/日志消息
+log:
+  gamemode-blocked: "玩家 {player} 的游戏模式更改已被区域 GAMEMODE 标志阻止"
+  halt-act-player: "暂停活动：已从 {world} 自动移除 {count} 个实体（>10）"
+  halt-act-chunk: "暂停活动：已从 {chunk} 自动移除 {count} 个实体（>50）"
+  host-key-mismatch: "WorldGuard 主机密钥检查：{player} 使用 '{actual}' 加入，但预期为 '{expected}'。已踢出！"
+  god-mode-enabled: "已为玩家 {player} 启用自动上帝模式"
+  water-breathing-enabled: "已为玩家 {player} 启用水下呼吸模式（玩家在 'wg-amphibious' 组中）"
   
 # 标志警告消息
 flag-warning:

@@ -173,16 +173,19 @@ class BukkitOfflinePlayer extends BukkitPlayer {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void printDebug(String msg) {
         throw new UnsupportedOperationException();
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void print(String msg) {
         throw new UnsupportedOperationException();
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void printError(String msg) {
         throw new UnsupportedOperationException();
     }
@@ -208,6 +211,7 @@ class BukkitOfflinePlayer extends BukkitPlayer {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void setPosition(Vector3 pos, float pitch, float yaw) {
         throw new UnsupportedOperationException();
     }

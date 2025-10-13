@@ -92,6 +92,17 @@ class AbstractListener implements Listener {
     }
 
     /**
+     * Get a translated log message.
+     *
+     * @param key the message key
+     * @param placeholders optional placeholder key-value pairs
+     * @return the translated message
+     */
+    protected static String getLogMessage(String key, Object... placeholders) {
+        return getPlugin().getMessageManager().getMessage(key, placeholders);
+    }
+
+    /**
      * Get the world configuration given a world.
      *
      * @param world The world to get the configuration for.
