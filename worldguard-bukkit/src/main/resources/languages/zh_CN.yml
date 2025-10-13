@@ -1,0 +1,203 @@
+# WorldGuard 语言文件 - 简体中文
+# 支持 MiniMessage 格式: https://docs.advntr.dev/minimessage/format.html
+
+# 通用消息
+general:
+  prefix: "<gray>[<dark_purple>WorldGuard<gray>]</gray> "
+  no-permission: "<red>你没有权限执行此操作。</red>"
+  player-only: "<red>此命令只能由玩家使用。</red>"
+  unknown-world: "<red>未知的世界：<world></red>"
+  unknown-player: "<red>未知的玩家：<player></red>"
+  error: "<red>发生错误：<error></red>"
+  success: "<green>成功！</green>"
+  
+# 区域消息
+region:
+  not-found: "<red>未找到区域'<region>'。</red>"
+  already-exists: "<red>名为'<region>'的区域已存在。</red>"
+  created: "<green>区域'<region>'已创建。</green>"
+  deleted: "<green>区域'<region>'已删除。</green>"
+  updated: "<green>区域'<region>'已更新。</green>"
+  info: "<gray>区域：<gold><region></gold></gray>"
+  priority: "<gray>优先级：<gold><priority></gold></gray>"
+  parent: "<gray>父区域：<gold><parent></gold></gray>"
+  owners: "<gray>所有者：<gold><owners></gold></gray>"
+  members: "<gray>成员：<gold><members></gold></gray>"
+  flags: "<gray>标志：<gold><flags></gold></gray>"
+  list-header: "<gold><world> 中的区域：</gold>"
+  list-entry: "<gray>- <gold><region></gold> (优先级：<priority>)</gray>"
+  list-empty: "<yellow>此世界中未找到区域。</yellow>"
+  
+  # 区域保护消息
+  protection:
+    deny-message: "<red>你没有权限在这里执行此操作。</red>"
+    entry-deny: "<red>你不被允许进入此区域。</red>"
+    exit-deny: "<red>你不被允许离开此区域。</red>"
+    greeting: "<yellow>进入：<region></yellow>"
+    farewell: "<yellow>离开：<region></yellow>"
+    
+  # 区域标志消息
+  flag:
+    set: "<green>区域'<region>'的标志'<flag>'已设置为'<value>'。</green>"
+    unset: "<green>区域'<region>'的标志'<flag>'已移除。</green>"
+    list: "<gray>区域'<region>'的标志：</gray>"
+    list-entry: "<gray>- <gold><flag></gold>：<value></gray>"
+    list-empty: "<yellow>此区域未设置标志。</yellow>"
+    invalid: "<red>无效的标志：<flag></red>"
+    invalid-value: "<red>标志'<flag>'的值无效：<value></red>"
+    
+  # 区域成员管理
+  member:
+    added-owner: "<green>已将 <player> 添加为区域'<region>'的所有者。</green>"
+    added-member: "<green>已将 <player> 添加为区域'<region>'的成员。</green>"
+    removed-owner: "<green>已从区域'<region>'移除所有者 <player>。</green>"
+    removed-member: "<green>已从区域'<region>'移除成员 <player>。</green>"
+    already-owner: "<yellow><player> 已经是区域'<region>'的所有者。</yellow>"
+    already-member: "<yellow><player> 已经是区域'<region>'的成员。</yellow>"
+    not-owner: "<yellow><player> 不是区域'<region>'的所有者。</yellow>"
+    not-member: "<yellow><player> 不是区域'<region>'的成员。</yellow>"
+
+# 黑名单消息
+blacklist:
+  notify: "<red>你不被允许使用 <item>。</red>"
+  reason: "<red>原因：<reason></red>"
+  
+# 保护消息
+protection:
+  chest-protected: "<yellow>此箱子受到保护。</yellow>"
+  build-deny: "<red>你没有权限在这里建造。</red>"
+  break-deny: "<red>你没有权限在这里破坏方块。</red>"
+  interact-deny: "<red>你没有权限与此交互。</red>"
+  pvp-deny: "<red>此处不允许 PvP。</red>"
+  damage-deny: "<red>你不能在这里伤害实体。</red>"
+  world-not-whitelisted: "<red>此世界不在WorldGuard保护白名单中。</red>"
+  
+# 命令消息
+command:
+  reload: "<green>WorldGuard 配置已重新加载。</green>"
+  reload-error: "<red>重新加载配置失败。</red>"
+  version: "<gray>WorldGuard 版本：<gold><version></gold></gray>"
+  debug-enabled: "<green>调试模式已启用。</green>"
+  debug-disabled: "<green>调试模式已禁用。</green>"
+  
+  # 区域命令
+  region-define: "用法：/region define <id> [所有者1] [所有者2] ..."
+  region-redefine: "用法：/region redefine <id>"
+  region-claim: "用法：/region claim <id>"
+  region-select: "<green>已选择区域'<region>'。</green>"
+  region-info: "用法：/region info <id>"
+  region-list: "用法：/region list [世界] [页码]"
+  region-delete: "用法：/region delete <id>"
+  region-priority: "用法：/region priority <id> <优先级>"
+  region-setparent: "用法：/region setparent <id> [父区域id]"
+  
+  # 切换命令
+  toggle-enabled: "<green><feature> 已启用。</green>"
+  toggle-disabled: "<red><feature> 已禁用。</red>"
+  
+# 会话处理器消息
+session:
+  invincibility: "<gold>你在此区域内无敌。</gold>"
+  invincibility-removed: "<gray>无敌状态已移除。</gray>"
+  gamemode-changed: "<gray>你的游戏模式已更改。</gray>"
+  fly-enabled: "<green>飞行已启用。</green>"
+  fly-disabled: "<red>飞行已禁用。</red>"
+  godmode-enabled: "<green>上帝模式已启用。</green>"
+  godmode-disabled: "<red>上帝模式已禁用。</red>"
+  
+# 标题消息（用于进入/离开标题）
+title:
+  region-entry: "<gold><region></gold>"
+  region-entry-subtitle: "<gray>欢迎</gray>"
+  region-exit: "<gold><region></gold>"
+  region-exit-subtitle: "<gray>再见</gray>"
+  
+# 错误消息
+error:
+  console-only: "<red>此命令只能从控制台执行。</red>"
+  invalid-args: "<red>参数无效。</red>"
+  command-error: "<red>执行此命令时发生错误。</red>"
+  region-overlap: "<red>此区域与现有区域重叠。</red>"
+  selection-incomplete: "<red>请先进行 WorldEdit 选择。</red>"
+  
+# 配置消息
+config:
+  saved: "<green>配置已保存。</green>"
+  loaded: "<green>配置已加载。</green>"
+  reset: "<green>配置已重置为默认值。</green>"
+
+# 调试消息
+debug:
+  report-printed: "<gray>报告已输出到控制台。</gray>"
+  report-printed-both: "<gray>报告也已输出到控制台。</gray>"
+
+# 玩家消息
+player:
+  infinite-stack-removed: "<red>已移除无限堆叠物品。</red>"
+  infinite-stack-slot-removed: "<red>已移除槽位 #<slot> 中的无限堆叠物品。</red>"
+  can-build-test: "<yellow>你能建造吗？<result></yellow>"
+  op-console-only: "<red>/op 和 /deop 只能在控制台使用（由 WorldGuard 设置）。</red>"
+  disembark-warning: "<gold>不要在这里下船！</gold> <gray>你无法再上去。</gray>"
+
+# 箱子保护消息
+chest:
+  protected-spot: "<dark_red>这个位置是用于你无权访问的箱子。</dark_red>"
+  protected-chest: "<dark_red>此箱子受到保护。</dark_red>"
+  adjacent-not-owned: "<dark_red>你不拥有相邻的箱子。</dark_red>"
+  protected-by-other: "<red>此箱子已被 <owner> 保护。</red>"
+  protected-by-you: "<yellow>此箱子现已受到保护。</yellow>"
+  unprotected: "<red>此箱子不再受到保护。</red>"
+
+# 药水消息
+potion:
+  arrow-blocked: "<red>抱歉，带有 <effect> 效果的箭目前已被禁用。</red>"
+  potion-blocked: "<red>抱歉，带有 <effect> 效果的药水目前已被禁用。</red>"
+  splash-potion-blocked: "<red>抱歉，带有 <effect> 效果的喷溅药水目前已被禁用。</red>"
+
+# 高级命令消息
+command-region:
+  define-adding: "正在添加区域 '<region>'"
+  define-success: "已创建名为 '<region>' 的新区域。"
+  define-failed: "添加区域 '<region>' 失败"
+  update-updating: "正在更新区域 '<region>'"
+  update-success: "区域 '<region>' 已更新为新区域。"
+  update-failed: "更新区域 '<region>' 失败"
+  claim-success: "已认领名为 '<region>' 的新区域。"
+  claim-too-large: "此区域太大，无法认领。"
+  claim-max-volume: "最大体积：<max>，你的体积：<volume>"
+  remove-removing: "正在 '<world>' 中移除区域 '<region>'"
+  load-loading: "正在加载 '<world>' 的区域数据。"
+  load-success: "已加载 '<world>' 的区域数据"
+  load-failed: "加载 '<world>' 的区域数据失败"
+  save-saving: "正在保存 '<world>' 的区域数据。"
+  save-success: "已保存 '<world>' 的区域数据"
+  save-failed: "保存 '<world>' 的区域数据失败"
+  
+# 成员命令消息
+command-member:
+  adding-members: "正在向 '<world>' 上的区域 '<region>' 添加成员"
+  added-members: "区域 '<region>' 已更新，添加了新成员。"
+  adding-owners: "正在向 '<world>' 上的区域 '<region>' 添加所有者"
+  added-owners: "区域 '<region>' 已更新，添加了新所有者。"
+  removing-members: "正在从 '<world>' 上的区域 '<region>' 移除成员"
+  removed-members: "区域 '<region>' 已更新，移除了成员。"
+  removing-owners: "正在从 '<world>' 上的区域 '<region>' 移除所有者"
+  removed-owners: "区域 '<region>' 已更新，移除了所有者。"
+
+# WorldGuard 系统消息
+system:
+  platform-info: "* <platform> (<version>)"
+  save-warning: "<yellow>警告：区域数据可能无法保存。</yellow>"
+  spawn-overlap: "<red>警告：此区域与出生点重叠。</red>"
+  
+# 标志警告消息
+flag-warning:
+  passthrough-title: "<red><bold>警告：</bold></red>"
+  passthrough-message: "<red>此标志与穿越区域无关。</red>"
+  passthrough-info: "它会覆盖建造检查。如果你不确定这意味着什么，请查看文档。"
+  build-title: "<red><bold>警告：</bold></red>"
+  build-message: "<red>设置此标志不是保护所必需的。</red>"
+  build-info: "设置此标志将完全覆盖默认保护，并适用于成员、非成员、活塞、沙子物理和所有其他可以修改方块的内容。"
+  build-warning: "只有在你确定知道自己在做什么时才设置此标志。有关更多信息，请参阅文档。"
+  location-outside: "<yellow>警告：标志位置在区域外。</yellow>"
+

@@ -19,4 +19,16 @@
 # if any features are currently broken in your version of Bukkit.
 #
 
+# 世界白名单设置
+# 如果启用，WorldGuard只会在白名单中的世界生效
+# 在非白名单世界中，所有WorldGuard功能都会被禁用
+world-whitelist:
+    enabled: false
+    worlds:
+        - world
+        - world_nether
+        - world_the_end
+    # 在非白名单世界中向玩家显示的消息（支持 MiniMessage 格式）
+    deny-message: "<red>此世界不在WorldGuard保护白名单中。</red>"
+
 # -- This should be automatically replaced by the plugin in-game --

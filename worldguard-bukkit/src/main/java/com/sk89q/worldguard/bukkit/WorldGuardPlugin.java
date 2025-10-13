@@ -36,6 +36,7 @@ import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.blacklist.Blacklist;
+import com.sk89q.worldguard.config.WorldConfiguration;
 import com.sk89q.worldguard.bukkit.event.player.ProcessPlayerEvent;
 import com.sk89q.worldguard.bukkit.listener.BlacklistListener;
 import com.sk89q.worldguard.bukkit.listener.BlockedPotionsListener;
@@ -62,6 +63,9 @@ import com.sk89q.worldguard.bukkit.session.BukkitSessionManager;
 import com.sk89q.worldguard.bukkit.util.ClassSourceValidator;
 import com.sk89q.worldguard.bukkit.util.Entities;
 import com.sk89q.worldguard.bukkit.util.Events;
+import com.sk89q.worldguard.bukkit.i18n.I18nConfig;
+import com.sk89q.worldguard.bukkit.i18n.MessageManager;
+import com.sk89q.worldguard.bukkit.i18n.MiniMessageHelper;
 import com.sk89q.worldguard.commands.GeneralCommands;
 import com.sk89q.worldguard.commands.ProtectionCommands;
 import com.sk89q.worldguard.commands.ToggleCommands;
@@ -107,6 +111,10 @@ public class WorldGuardPlugin extends JavaPlugin {
     private static BukkitWorldGuardPlatform platform;
     private final CommandsManager<Actor> commands;
     private PlayerMoveListener playerMoveListener;
+    private I18nConfig i18nConfig;
+    private MessageManager messageManager;
+    private MiniMessageHelper miniMessageHelper;
+    private com.sk89q.worldguard.bukkit.util.WorldWhitelistChecker worldWhitelistChecker;
 
     private static final int BSTATS_PLUGIN_ID = 3283;
 
@@ -144,6 +152,21 @@ public class WorldGuardPlugin extends JavaPlugin {
         configureLogger();
 
         getDataFolder().mkdirs(); // Need to create the plugins/WorldGuard folder
+
+        // Initialize i18n and MiniMessage support
+        i18nConfig = new I18nConfig(this);
+        i18nConfig.load();
+        
+        messageManager = new MessageManager(this);
+        messageManager.loadLanguages();
+        messageManager.setLanguage(i18nConfig.getLanguage());
+        
+        miniMessageHelper = new MiniMessageHelper(this);
+        
+        getLogger().info("Internationalization loaded: " + i18nConfig.getLanguage());
+
+        // Initialize world whitelist checker
+        worldWhitelistChecker = new com.sk89q.worldguard.bukkit.util.WorldWhitelistChecker(this);
 
         PermissionsResolverManager.initialize(this);
 
@@ -265,6 +288,11 @@ public class WorldGuardPlugin extends JavaPlugin {
     public void onDisable() {
         WorldGuard.getInstance().disable();
         this.getServer().getScheduler().cancelTasks(this);
+        
+        // Close MiniMessage helper
+        if (miniMessageHelper != null) {
+            miniMessageHelper.close();
+        }
     }
 
     @Override
@@ -289,14 +317,15 @@ public class WorldGuardPlugin extends JavaPlugin {
                 throw t;
             }
         } catch (CommandPermissionsException e) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission.");
+            miniMessageHelper.sendMessage(sender, messageManager.getMessage("general.no-permission"));
         } catch (MissingNestedCommandException e) {
             sender.sendMessage(ChatColor.RED + e.getUsage());
         } catch (CommandUsageException e) {
             sender.sendMessage(ChatColor.RED + e.getMessage());
             sender.sendMessage(ChatColor.RED + e.getUsage());
         } catch (WrappedCommandException e) {
-            sender.sendMessage(ChatColor.RED + e.getCause().getMessage());
+            miniMessageHelper.sendMessage(sender, messageManager.getMessage("general.error", 
+                "error", e.getCause().getMessage()));
         } catch (CommandException e) {
             sender.sendMessage(ChatColor.RED + e.getMessage());
         }
@@ -346,7 +375,8 @@ public class WorldGuardPlugin extends JavaPlugin {
     public boolean hasPermission(CommandSender sender, String perm) {
         if (sender.isOp()) {
             if (sender instanceof Player) {
-                if (platform.getGlobalStateManager().get(BukkitAdapter.adapt(((Player) sender).getWorld())).opPermissions) {
+                WorldConfiguration config = platform.getGlobalStateManager().get(BukkitAdapter.adapt(((Player) sender).getWorld()));
+                if (config != null && config.opPermissions) {
                     return true;
                 }
             } else {
@@ -522,6 +552,42 @@ public class WorldGuardPlugin extends JavaPlugin {
 
     public PlayerMoveListener getPlayerMoveListener() {
         return playerMoveListener;
+    }
+
+    /**
+     * Gets the i18n configuration.
+     *
+     * @return The i18n configuration
+     */
+    public I18nConfig getI18nConfig() {
+        return i18nConfig;
+    }
+
+    /**
+     * Gets the message manager for internationalization.
+     *
+     * @return The message manager
+     */
+    public MessageManager getMessageManager() {
+        return messageManager;
+    }
+
+    /**
+     * Gets the MiniMessage helper.
+     *
+     * @return The MiniMessage helper
+     */
+    public MiniMessageHelper getMiniMessageHelper() {
+        return miniMessageHelper;
+    }
+
+    /**
+     * Gets the world whitelist checker.
+     *
+     * @return The world whitelist checker
+     */
+    public com.sk89q.worldguard.bukkit.util.WorldWhitelistChecker getWorldWhitelistChecker() {
+        return worldWhitelistChecker;
     }
 
 }

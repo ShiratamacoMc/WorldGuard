@@ -20,7 +20,6 @@
 package com.sk89q.worldguard.bukkit.listener;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.config.ConfigurationManager;
 import com.sk89q.worldguard.config.WorldConfiguration;
@@ -28,7 +27,6 @@ import com.sk89q.worldguard.util.Entities;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 
@@ -77,6 +75,9 @@ public class WorldGuardWorldListener extends AbstractListener {
      */
     public void initWorld(World world) {
         WorldConfiguration wcfg = getWorldConfig(world);
+        if (wcfg == null) {
+            return; // World not whitelisted, skip initialization
+        }
         if (wcfg.alwaysRaining && !wcfg.disableWeather) {
             world.setStorm(true);
         } else if (wcfg.disableWeather && !wcfg.alwaysRaining) {

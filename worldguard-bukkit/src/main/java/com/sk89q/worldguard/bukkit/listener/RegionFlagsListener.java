@@ -83,6 +83,7 @@ public class RegionFlagsListener extends AbstractListener {
         if (!isRegionSupportEnabled(event.getWorld())) return; // Region support disabled
 
         WorldConfiguration config = getWorldConfig(event.getWorld());
+        if (config == null) return; // Double-check for safety
         RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
 
         Block block;

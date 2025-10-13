@@ -1,0 +1,203 @@
+# WorldGuard Language File - English (US)
+# Supports MiniMessage formatting: https://docs.advntr.dev/minimessage/format.html
+
+# General Messages
+general:
+  prefix: "<gray>[<dark_purple>WorldGuard<gray>]</gray> "
+  no-permission: "<red>You don't have permission to do this.</red>"
+  player-only: "<red>This command can only be used by players.</red>"
+  unknown-world: "<red>Unknown world: <world></red>"
+  unknown-player: "<red>Unknown player: <player></red>"
+  error: "<red>An error occurred: <error></red>"
+  success: "<green>Success!</green>"
+  
+# Region Messages
+region:
+  not-found: "<red>Region '<region>' not found.</red>"
+  already-exists: "<red>A region named '<region>' already exists.</red>"
+  created: "<green>Region '<region>' has been created.</green>"
+  deleted: "<green>Region '<region>' has been deleted.</green>"
+  updated: "<green>Region '<region>' has been updated.</green>"
+  info: "<gray>Region: <gold><region></gold></gray>"
+  priority: "<gray>Priority: <gold><priority></gold></gray>"
+  parent: "<gray>Parent: <gold><parent></gold></gray>"
+  owners: "<gray>Owners: <gold><owners></gold></gray>"
+  members: "<gray>Members: <gold><members></gold></gray>"
+  flags: "<gray>Flags: <gold><flags></gold></gray>"
+  list-header: "<gold>Regions in <world>:</gold>"
+  list-entry: "<gray>- <gold><region></gold> (Priority: <priority>)</gray>"
+  list-empty: "<yellow>No regions found in this world.</yellow>"
+  
+  # Region protection messages
+  protection:
+    deny-message: "<red>You don't have permission to do that here.</red>"
+    entry-deny: "<red>You are not allowed to enter this area.</red>"
+    exit-deny: "<red>You are not allowed to leave this area.</red>"
+    greeting: "<yellow>Entering: <region></yellow>"
+    farewell: "<yellow>Leaving: <region></yellow>"
+    
+  # Region flag messages
+  flag:
+    set: "<green>Flag '<flag>' has been set to '<value>' for region '<region>'.</green>"
+    unset: "<green>Flag '<flag>' has been removed from region '<region>'.</green>"
+    list: "<gray>Flags for region '<region>':</gray>"
+    list-entry: "<gray>- <gold><flag></gold>: <value></gray>"
+    list-empty: "<yellow>No flags set for this region.</yellow>"
+    invalid: "<red>Invalid flag: <flag></red>"
+    invalid-value: "<red>Invalid value for flag '<flag>': <value></red>"
+    
+  # Region member management
+  member:
+    added-owner: "<green>Added <player> as owner of region '<region>'.</green>"
+    added-member: "<green>Added <player> as member of region '<region>'.</green>"
+    removed-owner: "<green>Removed <player> as owner from region '<region>'.</green>"
+    removed-member: "<green>Removed <player> as member from region '<region>'.</green>"
+    already-owner: "<yellow><player> is already an owner of region '<region>'.</yellow>"
+    already-member: "<yellow><player> is already a member of region '<region>'.</yellow>"
+    not-owner: "<yellow><player> is not an owner of region '<region>'.</yellow>"
+    not-member: "<yellow><player> is not a member of region '<region>'.</yellow>"
+
+# Blacklist Messages
+blacklist:
+  notify: "<red>You are not allowed to use <item>.</red>"
+  reason: "<red>Reason: <reason></red>"
+  
+# Protection Messages
+protection:
+  chest-protected: "<yellow>This chest is protected.</yellow>"
+  build-deny: "<red>You don't have permission to build here.</red>"
+  break-deny: "<red>You don't have permission to break blocks here.</red>"
+  interact-deny: "<red>You don't have permission to interact with this.</red>"
+  pvp-deny: "<red>PvP is not allowed here.</red>"
+  damage-deny: "<red>You cannot damage entities here.</red>"
+  world-not-whitelisted: "<red>This world is not in the WorldGuard protection whitelist.</red>"
+  
+# Command Messages
+command:
+  reload: "<green>WorldGuard configuration reloaded.</green>"
+  reload-error: "<red>Failed to reload configuration.</red>"
+  version: "<gray>WorldGuard version: <gold><version></gold></gray>"
+  debug-enabled: "<green>Debug mode enabled.</green>"
+  debug-disabled: "<green>Debug mode disabled.</green>"
+  
+  # Region commands
+  region-define: "Usage: /region define <id> [owner1] [owner2] ..."
+  region-redefine: "Usage: /region redefine <id>"
+  region-claim: "Usage: /region claim <id>"
+  region-select: "<green>Region '<region>' selected.</green>"
+  region-info: "Usage: /region info <id>"
+  region-list: "Usage: /region list [world] [page]"
+  region-delete: "Usage: /region delete <id>"
+  region-priority: "Usage: /region priority <id> <priority>"
+  region-setparent: "Usage: /region setparent <id> [parent-id]"
+  
+  # Toggle commands
+  toggle-enabled: "<green><feature> enabled.</green>"
+  toggle-disabled: "<red><feature> disabled.</red>"
+  
+# Session Handler Messages
+session:
+  invincibility: "<gold>You are invincible in this area.</gold>"
+  invincibility-removed: "<gray>Invincibility removed.</gray>"
+  gamemode-changed: "<gray>Your game mode has been changed.</gray>"
+  fly-enabled: "<green>Flying enabled.</green>"
+  fly-disabled: "<red>Flying disabled.</red>"
+  godmode-enabled: "<green>God mode enabled.</green>"
+  godmode-disabled: "<red>God mode disabled.</red>"
+  
+# Title Messages (used for entry/exit titles)
+title:
+  region-entry: "<gold><region></gold>"
+  region-entry-subtitle: "<gray>Welcome</gray>"
+  region-exit: "<gold><region></gold>"
+  region-exit-subtitle: "<gray>Goodbye</gray>"
+  
+# Error Messages
+error:
+  console-only: "<red>This command can only be executed from console.</red>"
+  invalid-args: "<red>Invalid arguments.</red>"
+  command-error: "<red>An error occurred while executing this command.</red>"
+  region-overlap: "<red>This region overlaps with an existing region.</red>"
+  selection-incomplete: "<red>Please make a WorldEdit selection first.</red>"
+  
+# Configuration Messages
+config:
+  saved: "<green>Configuration saved.</green>"
+  loaded: "<green>Configuration loaded.</green>"
+  reset: "<green>Configuration reset to defaults.</green>"
+
+# Debug Messages
+debug:
+  report-printed: "<gray>The report was printed to console.</gray>"
+  report-printed-both: "<gray>The report was also printed to console.</gray>"
+
+# Player Messages
+player:
+  infinite-stack-removed: "<red>Infinite stack removed.</red>"
+  infinite-stack-slot-removed: "<red>Infinite stack in slot #<slot> removed.</red>"
+  can-build-test: "<yellow>Can you build? <result></yellow>"
+  op-console-only: "<red>/op and /deop can only be used in console (as set by a WG setting).</red>"
+  disembark-warning: "<gold>Don't disembark here!</gold> <gray>You can't get back on.</gray>"
+
+# Chest Protection Messages
+chest:
+  protected-spot: "<dark_red>This spot is for a chest that you don't have permission for.</dark_red>"
+  protected-chest: "<dark_red>This chest is protected.</dark_red>"
+  adjacent-not-owned: "<dark_red>You do not own the adjacent chest.</dark_red>"
+  protected-by-other: "<red>This chest has been protected by <owner>.</red>"
+  protected-by-you: "<yellow>This chest is now protected.</yellow>"
+  unprotected: "<red>This chest is no longer protected.</red>"
+
+# Potion Messages  
+potion:
+  arrow-blocked: "<red>Sorry, arrows with <effect> are presently disabled.</red>"
+  potion-blocked: "<red>Sorry, potions with <effect> are presently disabled.</red>"
+  splash-potion-blocked: "<red>Sorry, potions with <effect> are presently disabled.</red>"
+
+# Advanced Command Messages
+command-region:
+  define-adding: "Adding region '<region>'"
+  define-success: "A new region has been made named '<region>'."
+  define-failed: "Failed to add the region '<region>'"
+  update-updating: "Updating region '<region>'"
+  update-success: "Region '<region>' has been updated with a new area."
+  update-failed: "Failed to update the region '<region>'"
+  claim-success: "A new region has been claimed named '<region>'."
+  claim-too-large: "This region is too large to claim."
+  claim-max-volume: "Max. volume: <max>, your volume: <volume>"
+  remove-removing: "Removing region '<region>' in '<world>'"
+  load-loading: "Loading region data for '<world>'."
+  load-success: "Loaded region data for '<world>'"
+  load-failed: "Failed to load region data for '<world>'"
+  save-saving: "Saving region data for '<world>'."
+  save-success: "Saved region data for '<world>'"
+  save-failed: "Failed to save region data for '<world>'"
+  
+# Member Command Messages
+command-member:
+  adding-members: "Adding members to the region '<region>' on '<world>'"
+  added-members: "Region '<region>' updated with new members."
+  adding-owners: "Adding owners to the region '<region>' on '<world>'"
+  added-owners: "Region '<region>' updated with new owners."
+  removing-members: "Removing members from the region '<region>' on '<world>'"
+  removed-members: "Region '<region>' updated with members removed."
+  removing-owners: "Removing owners from the region '<region>' on '<world>'"
+  removed-owners: "Region '<region>' updated with owners removed."
+
+# WorldGuard System Messages
+system:
+  platform-info: "* <platform> (<version>)"
+  save-warning: "<yellow>Warning: Region data may fail to save.</yellow>"
+  spawn-overlap: "<red>Warning: This region overlaps the spawn point.</red>"
+  
+# Flag Warning Messages
+flag-warning:
+  passthrough-title: "<red><bold>WARNING:</bold></red>"
+  passthrough-message: "<red>This flag is unrelated to moving through regions.</red>"
+  passthrough-info: "It overrides build checks. If you're unsure what this means, see the documentation."
+  build-title: "<red><bold>WARNING:</bold></red>"
+  build-message: "<red>Setting this flag is not required for protection.</red>"
+  build-info: "Setting this flag will completely override default protection, and apply to members, non-members, pistons, sand physics, and everything else that can modify blocks."
+  build-warning: "Only set this flag if you are sure you know what you are doing. See the documentation for more info."
+  location-outside: "<yellow>WARNING: Flag location is outside of region.</yellow>"
+

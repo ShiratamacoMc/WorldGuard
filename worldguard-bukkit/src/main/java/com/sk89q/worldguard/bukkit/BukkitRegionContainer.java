@@ -107,7 +107,8 @@ public class BukkitRegionContainer extends RegionContainer {
         checkNotNull(world);
 
         WorldConfiguration config = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world);
-        if (!config.useRegions) {
+        // Return null if world is not whitelisted or regions are disabled
+        if (config == null || !config.useRegions) {
             return null;
         }
 

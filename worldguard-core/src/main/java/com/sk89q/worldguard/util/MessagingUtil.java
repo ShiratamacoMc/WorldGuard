@@ -23,11 +23,24 @@ import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.commands.CommandUtils;
 
+/**
+ * Utility class for messaging.
+ * 
+ * Note: For MiniMessage support, use the MiniMessageHelper class
+ * from the bukkit module instead.
+ */
 public final class MessagingUtil {
 
     private MessagingUtil() {
     }
 
+    /**
+     * Sends a string message to a player's chat.
+     * Supports legacy color codes and macro replacement.
+     * 
+     * @param player The player to send the message to
+     * @param message The message to send
+     */
     public static void sendStringToChat(LocalPlayer player, String message) {
         String effective = CommandUtils.replaceColorMacros(message);
         effective = WorldGuard.getInstance().getPlatform().getMatcher().replaceMacros(player, effective);
@@ -36,6 +49,13 @@ public final class MessagingUtil {
         }
     }
 
+    /**
+     * Sends a string message as a title to a player.
+     * Supports legacy color codes and macro replacement.
+     * 
+     * @param player The player to send the title to
+     * @param message The message to send (can contain \n for subtitle)
+     */
     public static void sendStringToTitle(LocalPlayer player, String message) {
         String[] parts = message.replaceAll("\\\\n", "\n").split("\\n", 2);
         String title = CommandUtils.replaceColorMacros(parts[0]);

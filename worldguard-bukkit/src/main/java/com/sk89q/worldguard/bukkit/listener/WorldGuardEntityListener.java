@@ -113,6 +113,7 @@ public class WorldGuardEntityListener extends AbstractListener {
         Block block = event.getBlock();
 
         WorldConfiguration wcfg = getWorldConfig(block.getWorld());
+        if (wcfg == null) return;
 
         if (block.getType() == Material.FARMLAND && wcfg.disableCreatureCropTrampling) {
             event.setCancelled(true);
@@ -131,6 +132,7 @@ public class WorldGuardEntityListener extends AbstractListener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityDeath(EntityDeathEvent event) {
         WorldConfiguration wcfg = getWorldConfig(event.getEntity().getWorld());
+        if (wcfg == null) return;
 
         if (event instanceof PlayerDeathEvent && wcfg.disableDeathMessages) {
             ((PlayerDeathEvent) event).setDeathMessage("");
@@ -142,6 +144,7 @@ public class WorldGuardEntityListener extends AbstractListener {
         DamageCause type = event.getCause();
 
         WorldConfiguration wcfg = getWorldConfig(defender.getWorld());
+        if (wcfg == null) return;
 
         if (defender instanceof Wolf && ((Wolf) defender).isTamed()) {
             if (wcfg.antiWolfDumbness && !(type == DamageCause.VOID)) {
@@ -211,6 +214,7 @@ public class WorldGuardEntityListener extends AbstractListener {
         Entity defender = event.getEntity();
 
         WorldConfiguration wcfg = getWorldConfig(defender.getWorld());
+        if (wcfg == null) return;
 
         if (defender instanceof ItemFrame) {
             if (checkItemFrameProtection(attacker, (ItemFrame) defender)) {
@@ -297,6 +301,7 @@ public class WorldGuardEntityListener extends AbstractListener {
         }
 
         WorldConfiguration wcfg = getWorldConfig(defender.getWorld());
+        if (wcfg == null) return;
         if (defender instanceof Player player && !Entities.isNPC(defender)) {
             LocalPlayer localPlayer = getPlugin().wrapPlayer(player);
 
@@ -368,6 +373,7 @@ public class WorldGuardEntityListener extends AbstractListener {
         DamageCause type = event.getCause();
 
         WorldConfiguration wcfg = getWorldConfig(defender.getWorld());
+        if (wcfg == null) return;
 
         if (defender instanceof Wolf && ((Wolf) defender).isTamed()) {
             if (wcfg.antiWolfDumbness) {
@@ -456,6 +462,7 @@ public class WorldGuardEntityListener extends AbstractListener {
         }
 
         BukkitWorldConfiguration wcfg = getWorldConfig(event.getLocation().getWorld());
+        if (wcfg == null) return;
         if (ent instanceof Creeper) {
             if (wcfg.blockCreeperExplosions) {
                 event.setCancelled(true);
@@ -577,6 +584,7 @@ public class WorldGuardEntityListener extends AbstractListener {
         }
 
         BukkitWorldConfiguration wcfg = getWorldConfig(ent.getWorld());
+        if (wcfg == null) return;
         if (event.getEntityType() == EntityType.WITHER) {
             if (wcfg.blockWitherExplosions) {
                 event.setCancelled(true);
@@ -621,6 +629,7 @@ public class WorldGuardEntityListener extends AbstractListener {
         }
 
         WorldConfiguration wcfg = getWorldConfig(event.getEntity().getWorld());
+        if (wcfg == null) return;
 
         // allow spawning of creatures from plugins
         if (!wcfg.blockPluginSpawning && Entities.isPluginSpawning(event.getSpawnReason())) {
@@ -676,6 +685,7 @@ public class WorldGuardEntityListener extends AbstractListener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onCreatePortal(PortalCreateEvent event) {
         WorldConfiguration wcfg = getWorldConfig(event.getWorld());
+        if (wcfg == null) return;
 
         if (wcfg.useRegions && wcfg.regionNetherPortalProtection
                 && event.getReason() == PortalCreateEvent.CreateReason.NETHER_PAIR
@@ -733,6 +743,7 @@ public class WorldGuardEntityListener extends AbstractListener {
     public void onEntityTransform(EntityTransformEvent event) {
         final Entity entity = event.getEntity();
         WorldConfiguration wcfg = getWorldConfig(entity.getWorld());
+        if (wcfg == null) return;
 
         final EntityType type = entity.getType();
         if (wcfg.disableVillagerZap && type == EntityType.VILLAGER
@@ -745,6 +756,7 @@ public class WorldGuardEntityListener extends AbstractListener {
     public void onPigZap(PigZapEvent event) {
         final Entity entity = event.getEntity();
         WorldConfiguration wcfg = getWorldConfig(entity.getWorld());
+        if (wcfg == null) return;
 
         if (wcfg.disablePigZap) {
             event.setCancelled(true);
@@ -755,6 +767,7 @@ public class WorldGuardEntityListener extends AbstractListener {
     public void onCreeperPower(CreeperPowerEvent event) {
         final Entity entity = event.getEntity();
         WorldConfiguration wcfg = getWorldConfig(entity.getWorld());
+        if (wcfg == null) return;
 
         if (wcfg.disableCreeperPower) {
             event.setCancelled(true);
@@ -771,6 +784,7 @@ public class WorldGuardEntityListener extends AbstractListener {
         Entity ent = event.getEntity();
 
         WorldConfiguration wcfg = getWorldConfig(ent.getWorld());
+        if (wcfg == null) return;
 
         if (wcfg.disableHealthRegain) {
             event.setCancelled(true);
@@ -795,6 +809,7 @@ public class WorldGuardEntityListener extends AbstractListener {
 
         LocalPlayer player = WorldGuardPlugin.inst().wrapPlayer(bukkitPlayer);
         WorldConfiguration wcfg = getWorldConfig(ent.getWorld());
+        if (wcfg == null) return;
 
         if (wcfg.useRegions
                 && !WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery().testState(
@@ -813,6 +828,7 @@ public class WorldGuardEntityListener extends AbstractListener {
         Entity ent = event.getEntity();
 
         WorldConfiguration wcfg = getWorldConfig(ent.getWorld());
+        if (wcfg == null) return;
         if (ent instanceof FallingBlock) {
             Material id = event.getBlock().getType();
 
@@ -853,6 +869,7 @@ public class WorldGuardEntityListener extends AbstractListener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onVehicleEnter(VehicleEnterEvent event) {
         BukkitWorldConfiguration wcfg = getWorldConfig(event.getEntered().getWorld());
+        if (wcfg == null) return;
 
         if (wcfg.blockEntityVehicleEntry && !(event.getEntered() instanceof Player)) {
             event.setCancelled(true);
@@ -869,6 +886,7 @@ public class WorldGuardEntityListener extends AbstractListener {
     private boolean checkItemFrameProtection(Entity attacker, ItemFrame defender) {
         World world = defender.getWorld();
         WorldConfiguration wcfg = getWorldConfig(world);
+        if (wcfg == null) return false;
         if (wcfg.useRegions) {
             // bukkit throws this event when a player attempts to remove an item from a frame
             if (!(attacker instanceof Player)) {

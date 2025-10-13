@@ -45,6 +45,7 @@ public class WorldGuardWeatherListener extends AbstractListener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onWeatherChange(WeatherChangeEvent event) {
         WorldConfiguration wcfg = getWorldConfig(event.getWorld());
+        if (wcfg == null) return;
 
         if (event.toWeatherState()) {
             if (wcfg.disableWeather) {
@@ -60,6 +61,7 @@ public class WorldGuardWeatherListener extends AbstractListener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onThunderChange(ThunderChangeEvent event) {
         WorldConfiguration wcfg = getWorldConfig(event.getWorld());
+        if (wcfg == null) return;
 
         if (event.toThunderState()) {
             if (wcfg.disableThunder) {
@@ -75,6 +77,7 @@ public class WorldGuardWeatherListener extends AbstractListener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onLightningStrike(LightningStrikeEvent event) {
         WorldConfiguration wcfg = getWorldConfig(event.getWorld());
+        if (wcfg == null) return;
 
         if (!wcfg.disallowedLightningBlocks.isEmpty()) {
             final Block target = event.getLightning().getLocation().getBlock();

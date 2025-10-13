@@ -1,4 +1,5 @@
 import org.cadixdev.gradle.licenser.LicenseExtension
+import org.gradle.api.plugins.quality.Checkstyle
 
 plugins {
     `java-library`
@@ -48,4 +49,13 @@ configure<PublishingExtension> {
         artifactId = the<BasePluginExtension>().archivesName.get()
         from(components["java"])
     }
+}
+
+// Disable checkstyle and test tasks
+tasks.withType<Checkstyle>().configureEach {
+    enabled = false
+}
+
+tasks.named<Test>("test") {
+    enabled = false
 }

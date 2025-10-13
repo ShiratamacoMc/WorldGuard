@@ -26,6 +26,7 @@ import com.sk89q.worldguard.bukkit.BukkitPlayer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.bukkit.event.player.ProcessPlayerEvent;
 import com.sk89q.worldguard.bukkit.util.Entities;
+import com.sk89q.worldguard.config.WorldConfiguration;
 import com.sk89q.worldguard.session.AbstractSessionManager;
 import com.sk89q.worldguard.session.Session;
 import org.bukkit.Bukkit;
@@ -75,8 +76,8 @@ public class BukkitSessionManager extends AbstractSessionManager implements Runn
     @Override
     public boolean hasBypass(LocalPlayer player, World world) {
         if (player instanceof BukkitPlayer bukkitPlayer) {
-            if (Entities.isNPC(bukkitPlayer.getPlayer())
-                    && WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world).fakePlayerBuildOverride) {
+            WorldConfiguration config = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world);
+            if (config != null && Entities.isNPC(bukkitPlayer.getPlayer()) && config.fakePlayerBuildOverride) {
                 return true;
             }
             if (!((BukkitPlayer) player).getPlayer().isOnline()) {

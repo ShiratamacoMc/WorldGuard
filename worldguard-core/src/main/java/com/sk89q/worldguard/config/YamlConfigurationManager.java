@@ -71,6 +71,11 @@ public abstract class YamlConfigurationManager extends ConfigurationManager {
         deopOnJoin = config.getBoolean("security.deop-everyone-on-join", false);
         blockInGameOp = config.getBoolean("security.block-in-game-op-command", false);
 
+        // Load world whitelist configuration
+        worldWhitelistEnabled = config.getBoolean("world-whitelist.enabled", false);
+        worldWhitelist = config.getStringList("world-whitelist.worlds", java.util.Arrays.asList("world", "world_nether", "world_the_end"));
+        worldWhitelistDenyMessage = config.getString("world-whitelist.deny-message", "<red>此世界不在WorldGuard保护白名单中。</red>");
+
         hostKeys = new HashMap<>();
         Object hostKeysRaw = config.getProperty("host-keys");
         if (!(hostKeysRaw instanceof Map)) {

@@ -80,6 +80,11 @@ public abstract class ConfigurationManager {
     public boolean disableDefaultBypass;
     public boolean announceBypassStatus;
 
+    // World whitelist configuration
+    public boolean worldWhitelistEnabled;
+    @Unreported public java.util.List<String> worldWhitelist = new java.util.ArrayList<>();
+    public String worldWhitelistDenyMessage;
+
     @Unreported public Map<String, String> hostKeys = new HashMap<>();
     public boolean hostKeysAllowFMLClients;
 
@@ -169,5 +174,27 @@ public abstract class ConfigurationManager {
     public boolean hasAmphibiousMode(LocalPlayer player) {
         WaterBreathing handler = WorldGuard.getInstance().getPlatform().getSessionManager().get(player).getHandler(WaterBreathing.class);
         return handler != null && handler.hasWaterBreathing();
+    }
+
+    /**
+     * Check if a world is in the whitelist.
+     *
+     * @param worldName The world name to check
+     * @return true if the world is whitelisted or whitelist is disabled
+     */
+    public boolean isWorldWhitelisted(String worldName) {
+        if (!worldWhitelistEnabled) {
+            return true;
+        }
+        return worldWhitelist.contains(worldName);
+    }
+
+    /**
+     * Get the deny message for non-whitelisted worlds.
+     *
+     * @return the deny message
+     */
+    public String getWorldWhitelistDenyMessage() {
+        return worldWhitelistDenyMessage != null ? worldWhitelistDenyMessage : "This world is not in the WorldGuard whitelist.";
     }
 }

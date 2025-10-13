@@ -1,5 +1,7 @@
 [versions]
 worldedit = "7.3.9"
+adventure = "4.25.0"
+minimessage = "4.25.0"
 
 # Minimum versions we apply to make dependencies support newer Java
 minimumAsm = "9.7"
@@ -29,6 +31,12 @@ junit-jupiter-engine.module = "org.junit.jupiter:junit-jupiter-engine"
 
 paperApi = "io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT"
 paperLib = "io.papermc:paperlib:1.0.8"
+
+adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure" }
+adventure-text-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "minimessage" }
+adventure-platform-bukkit = "net.kyori:adventure-platform-bukkit:4.3.4"
+adventure-text-serializer-legacy = "net.kyori:adventure-text-serializer-legacy:4.25.0"
+adventure-text-serializer-gson = "net.kyori:adventure-text-serializer-gson:4.25.0"
 
 dummypermscompat = "com.sk89q:dummypermscompat:1.10"
 bstats-bukkit = "org.bstats:bstats-bukkit:2.2.1"

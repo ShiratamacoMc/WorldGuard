@@ -80,6 +80,7 @@ public class BlockedPotionsListener extends AbstractListener {
         }
 
         BukkitWorldConfiguration wcfg = getWorldConfig(event.getWorld());
+        if (wcfg == null) return;
         PotionEffectType blockedEffect = null;
         if (originalEvent.getDamager() instanceof SpectralArrow) {
             if (wcfg.blockPotions.contains(PotionEffectType.GLOWING)) {
@@ -104,6 +105,7 @@ public class BlockedPotionsListener extends AbstractListener {
     @EventHandler
     public void onItemInteract(UseItemEvent event) {
         BukkitWorldConfiguration wcfg = getWorldConfig(event.getWorld());
+        if (wcfg == null) return;
         ItemStack item = event.getItemStack();
 
         if (item.getType() != Material.POTION

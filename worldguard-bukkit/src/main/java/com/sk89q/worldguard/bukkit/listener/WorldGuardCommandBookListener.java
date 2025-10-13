@@ -23,6 +23,7 @@ import com.sk89q.commandbook.InfoComponent;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.config.WorldConfiguration;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -45,7 +46,8 @@ public class WorldGuardCommandBookListener implements Listener {
         if (event.getPlayer() instanceof Player) {
             Player player = (Player) event.getPlayer();
             LocalPlayer localPlayer = plugin.wrapPlayer(player);
-            if (WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(localPlayer.getWorld()).useRegions) {
+            WorldConfiguration config = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(localPlayer.getWorld());
+            if (config != null && config.useRegions) {
                 ApplicableRegionSet regions =
                         WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery().getApplicableRegions(localPlayer.getLocation());
                 

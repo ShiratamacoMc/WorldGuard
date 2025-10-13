@@ -20,6 +20,7 @@
 package com.sk89q.worldguard.bukkit;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.internal.platform.I18nSupport;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.util.formatting.text.TextComponent;
@@ -66,7 +67,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class BukkitWorldGuardPlatform implements WorldGuardPlatform {
+public class BukkitWorldGuardPlatform implements WorldGuardPlatform, I18nSupport {
 
     private BukkitSessionManager sessionManager;
     private BukkitConfigurationManager configuration;
@@ -273,5 +274,22 @@ public class BukkitWorldGuardPlatform implements WorldGuardPlatform {
             }
         }
         return null;
+    }
+
+    // I18nSupport implementation
+    
+    @Override
+    public void reloadLanguages() {
+        WorldGuardPlugin plugin = WorldGuardPlugin.inst();
+        if (plugin != null && plugin.getMessageManager() != null) {
+            plugin.getMessageManager().reload();
+            plugin.getI18nConfig().load();
+            plugin.getMessageManager().setLanguage(plugin.getI18nConfig().getLanguage());
+        }
+    }
+    
+    @Override
+    public boolean isI18nSupported() {
+        return true;
     }
 }

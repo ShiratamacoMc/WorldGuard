@@ -42,6 +42,7 @@ public class WorldRulesListener extends AbstractListener {
     public void onSpawnEntity(final SpawnEntityEvent event) {
         if (event.getEffectiveType() == EntityType.EXPERIENCE_ORB) {
             WorldConfiguration config = getWorldConfig(event.getWorld());
+            if (config == null) return;
 
             if (config.disableExpDrops) {
                 event.setCancelled(true);
@@ -53,6 +54,7 @@ public class WorldRulesListener extends AbstractListener {
     public void onPotionEffect(EntityPotionEffectEvent event) {
         if (event.getCause() == EntityPotionEffectEvent.Cause.CONDUIT) {
             WorldConfiguration config = getWorldConfig(event.getEntity().getWorld());
+            if (config == null) return;
 
             if (config.disableConduitEffects) {
                 event.setCancelled(true);

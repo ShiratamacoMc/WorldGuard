@@ -21,6 +21,7 @@ package com.sk89q.worldguard.commands;
 
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.FutureCallback;
+import com.sk89q.worldguard.internal.platform.I18nSupport;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.sk89q.minecraft.util.commands.Command;
@@ -113,6 +114,15 @@ public class WorldGuardCommands {
                 config.get(world);
             }
             WorldGuard.getInstance().getPlatform().getRegionContainer().reload();
+            
+            // Reload i18n if supported
+            if (WorldGuard.getInstance().getPlatform() instanceof I18nSupport) {
+                I18nSupport i18n = (I18nSupport) WorldGuard.getInstance().getPlatform();
+                if (i18n.isI18nSupported()) {
+                    i18n.reloadLanguages();
+                }
+            }
+            
             // WGBukkit.cleanCache();
             sender.print("WorldGuard configuration reloaded.");
         } catch (Throwable t) {

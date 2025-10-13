@@ -36,7 +36,9 @@ import com.sk89q.worldguard.protection.association.DelayedRegionOverlapAssociati
 import com.sk89q.worldguard.protection.association.Associables;
 import com.sk89q.worldguard.protection.association.RegionAssociable;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
+import com.sk89q.worldguard.bukkit.event.DelegateEvent;
 import io.papermc.lib.PaperLib;
+import org.bukkit.event.Event;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
@@ -50,6 +52,9 @@ import org.bukkit.event.Listener;
 class AbstractListener implements Listener {
 
     private final WorldGuardPlugin plugin;
+    private final ThreadLocal<RegionQuery> queryCache = ThreadLocal.withInitial(
+        () -> WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery()
+    );
 
     /**
      * Construct the listener.
@@ -90,7 +95,7 @@ class AbstractListener implements Listener {
      * Get the world configuration given a world.
      *
      * @param world The world to get the configuration for.
-     * @return The configuration for {@code world}
+     * @return The configuration for {@code world}, or null if world is not whitelisted
      */
     protected static BukkitWorldConfiguration getWorldConfig(String world) {
         return getConfig().get(world);
@@ -117,8 +122,45 @@ class AbstractListener implements Listener {
      * @return true if region support is enabled
      */
     protected static boolean isRegionSupportEnabled(org.bukkit.World world) {
-        return getWorldConfig(world).useRegions;
+        BukkitWorldConfiguration config = getWorldConfig(world);
+        return config != null && config.useRegions;
     }
+
+    /**
+     * Check if a world is in the whitelist.
+     *
+     * @param world the world to check
+     * @return true if the world is whitelisted or whitelist is disabled
+     */
+    protected static boolean isWorldWhitelisted(org.bukkit.World world) {
+        return getPlugin().getWorldWhitelistChecker().isWorldWhitelisted(world);
+    }
+
+    /**
+     * Check if a world is whitelisted and cancel the event if not.
+     * Also sends a message to the player if provided.
+     *
+     * @param world the world to check
+     * @param event the event to cancel if world is not whitelisted
+     * @param player the player to send message to (can be null)
+     * @return true if the world is whitelisted, false otherwise
+     */
+    protected static boolean checkWorldWhitelist(org.bukkit.World world, org.bukkit.event.Cancellable event, Player player) {
+        return getPlugin().getWorldWhitelistChecker().checkAndCancel(world, event, player);
+    }
+
+    /**
+     * Get a cached RegionQuery instance for the current thread.
+     * This reduces object allocation overhead compared to creating a new query each time.
+     *
+     * @return a RegionQuery instance
+     */
+    protected RegionQuery getRegionQuery() {
+        return queryCache.get();
+    }
+
+    // Cache Paper check result to avoid repeated checks
+    private static final boolean IS_PAPER = PaperLib.isPaper();
 
     protected RegionAssociable createRegionAssociable(Cause cause) {
         Object rootCause = cause.getRootCause();
@@ -130,10 +172,12 @@ class AbstractListener implements Listener {
         } else if (rootCause instanceof OfflinePlayer offlinePlayer) {
             return getPlugin().wrapOfflinePlayer(offlinePlayer);
         } else if (rootCause instanceof Entity entity) {
-            RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
             BukkitWorldConfiguration config = getWorldConfig(entity.getWorld());
+            if (config == null) {
+                return Associables.constant(Association.NON_MEMBER);
+            }
             Location loc;
-            if (PaperLib.isPaper()  && config.usePaperEntityOrigin) {
+            if (IS_PAPER && config.usePaperEntityOrigin) {
                 loc = entity.getOrigin();
                 // Origin world may be null, and thus a Location with a null world created, which cannot be adapted to a WorldEdit location
                 if (loc == null || loc.getWorld() == null) {
@@ -142,15 +186,50 @@ class AbstractListener implements Listener {
             } else {
                 loc = entity.getLocation();
             }
-            return new DelayedRegionOverlapAssociation(query, BukkitAdapter.adapt(loc),
+            return new DelayedRegionOverlapAssociation(getRegionQuery(), BukkitAdapter.adapt(loc),
                     config.useMaxPriorityAssociation);
         } else if (rootCause instanceof Block block) {
-            RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
             Location loc = block.getLocation();
-            return new DelayedRegionOverlapAssociation(query, BukkitAdapter.adapt(loc),
-                    getWorldConfig(loc.getWorld()).useMaxPriorityAssociation);
+            BukkitWorldConfiguration blockConfig = getWorldConfig(loc.getWorld());
+            if (blockConfig == null) {
+                return Associables.constant(Association.NON_MEMBER);
+            }
+            return new DelayedRegionOverlapAssociation(getRegionQuery(), BukkitAdapter.adapt(loc),
+                    blockConfig.useMaxPriorityAssociation);
         } else {
             return Associables.constant(Association.NON_MEMBER);
         }
+    }
+
+    /**
+     * Check if a region event should be processed.
+     * This performs common pre-checks to avoid unnecessary region queries.
+     *
+     * @param event the delegate event
+     * @param world the world
+     * @param cause the cause
+     * @param pvp whether this is a PvP event
+     * @return true if the event should be processed, false otherwise
+     */
+    protected boolean shouldProcessRegionEvent(DelegateEvent event, org.bukkit.World world, Cause cause, boolean pvp) {
+        if (event.getResult() == Event.Result.ALLOW) return false;
+        
+        BukkitWorldConfiguration config = getWorldConfig(world);
+        if (config == null) return false;
+        if (!config.useRegions) return false;
+        
+        // Check whitelist/bypass
+        Object rootCause = cause.getRootCause();
+        if (rootCause instanceof Player player) {
+            if (config.fakePlayerBuildOverride && com.sk89q.worldguard.bukkit.util.InteropUtils.isFakePlayer(player)) {
+                return false;
+            }
+            LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
+            if (!pvp && WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, localPlayer.getWorld())) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 }

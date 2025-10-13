@@ -83,6 +83,7 @@ public class WorldGuardBlockListener extends AbstractListener {
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         WorldConfiguration wcfg = getWorldConfig(player.getWorld());
+        if (wcfg == null) return;
 
         if (!wcfg.itemDurability) {
             ItemStack held = player.getInventory().getItemInMainHand();
@@ -117,6 +118,7 @@ public class WorldGuardBlockListener extends AbstractListener {
         boolean isAir = fromType == Material.AIR;
 
         WorldConfiguration wcfg = getWorldConfig(world);
+        if (wcfg == null) return;
 
         if (wcfg.simulateSponge && isWater) {
             int ox = blockTo.getX();
@@ -136,17 +138,6 @@ public class WorldGuardBlockListener extends AbstractListener {
                 }
             }
         }
-
-        /*if (plugin.classicWater && isWater) {
-        int blockBelow = blockFrom.getRelative(0, -1, 0).getTypeId();
-        if (blockBelow != 0 && blockBelow != 8 && blockBelow != 9) {
-        blockFrom.setTypeId(9);
-        if (blockTo.getTypeId() == 0) {
-        blockTo.setTypeId(9);
-        }
-        return;
-        }
-        }*/
 
         // Check the fluid block (from) whether it is air.
         // If so and the target block is protected, cancel the event
@@ -170,13 +161,13 @@ public class WorldGuardBlockListener extends AbstractListener {
         }
 
         if (wcfg.highFreqFlags && (isWater || blockFrom.getBlockData() instanceof Waterlogged)
-                && WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery().queryState(BukkitAdapter.adapt(blockFrom.getLocation()), (RegionAssociable) null, Flags.WATER_FLOW) == StateFlag.State.DENY) {
+                && getRegionQuery().queryState(BukkitAdapter.adapt(blockFrom.getLocation()), (RegionAssociable) null, Flags.WATER_FLOW) == StateFlag.State.DENY) {
             event.setCancelled(true);
             return;
         }
 
         if (wcfg.highFreqFlags && isLava
-                && !StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery().queryState(BukkitAdapter.adapt(blockFrom.getLocation()), (RegionAssociable) null, Flags.LAVA_FLOW))) {
+                && !StateFlag.test(getRegionQuery().queryState(BukkitAdapter.adapt(blockFrom.getLocation()), (RegionAssociable) null, Flags.LAVA_FLOW))) {
             event.setCancelled(true);
             return;
         }
@@ -199,6 +190,7 @@ public class WorldGuardBlockListener extends AbstractListener {
         }
 
         WorldConfiguration wcfg = getWorldConfig(world);
+        if (wcfg == null) return;
         boolean isFireSpread = cause == IgniteCause.SPREAD;
 
         if (wcfg.preventLightningFire && cause == IgniteCause.LIGHTNING) {
@@ -245,7 +237,7 @@ public class WorldGuardBlockListener extends AbstractListener {
 
         if (wcfg.useRegions) {
             ApplicableRegionSet set =
-                    WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery().getApplicableRegions(BukkitAdapter.adapt(block.getLocation()));
+                    getRegionQuery().getApplicableRegions(BukkitAdapter.adapt(block.getLocation()));
 
             if (wcfg.highFreqFlags && isFireSpread
                     && !set.testState(null, Flags.FIRE_SPREAD)) {
@@ -287,6 +279,7 @@ public class WorldGuardBlockListener extends AbstractListener {
         }
 
         BukkitWorldConfiguration wcfg = getWorldConfig(event.getBlock().getWorld());
+        if (wcfg == null) return;
 
         if (wcfg.disableFireSpread) {
             event.setCancelled(true);
@@ -321,7 +314,7 @@ public class WorldGuardBlockListener extends AbstractListener {
             int y = block.getY();
             int z = block.getZ();
             ApplicableRegionSet set =
-                    WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery().getApplicableRegions(BukkitAdapter.adapt(block.getLocation()));
+                    getRegionQuery().getApplicableRegions(BukkitAdapter.adapt(block.getLocation()));
 
             if (!set.testState(null, Flags.FIRE_SPREAD)) {
                 checkAndDestroyFireAround(block.getWorld(), x, y, z);
@@ -359,6 +352,7 @@ public class WorldGuardBlockListener extends AbstractListener {
         }
 
         WorldConfiguration wcfg = getWorldConfig(event.getBlock().getWorld());
+        if (wcfg == null) return;
         final Material id = event.getBlock().getType();
 
         if (id == Material.GRAVEL && wcfg.noPhysicsGravel) {
@@ -393,6 +387,7 @@ public class WorldGuardBlockListener extends AbstractListener {
         World world = target.getWorld();
 
         WorldConfiguration wcfg = getWorldConfig(world);
+        if (wcfg == null) return;
 
         if (wcfg.simulateSponge && target.getType() == Material.SPONGE) {
             if (wcfg.redstoneSponges && target.isBlockIndirectlyPowered()) {
@@ -416,6 +411,7 @@ public class WorldGuardBlockListener extends AbstractListener {
         World world = blockTo.getWorld();
 
         WorldConfiguration wcfg = getWorldConfig(world);
+        if (wcfg == null) return;
 
         if (wcfg.simulateSponge && wcfg.redstoneSponges) {
             int ox = blockTo.getX();
@@ -451,6 +447,7 @@ public class WorldGuardBlockListener extends AbstractListener {
         }
 
         WorldConfiguration wcfg = getWorldConfig(event.getBlock().getWorld());
+        if (wcfg == null) return;
 
         if (wcfg.disableLeafDecay) {
             event.setCancelled(true);
@@ -458,7 +455,7 @@ public class WorldGuardBlockListener extends AbstractListener {
         }
 
         if (wcfg.useRegions) {
-            if (!StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery().queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.LEAF_DECAY))) {
+            if (!StateFlag.test(getRegionQuery().queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.LEAF_DECAY))) {
                 event.setCancelled(true);
             }
         }
@@ -477,6 +474,7 @@ public class WorldGuardBlockListener extends AbstractListener {
         }
 
         WorldConfiguration wcfg = getWorldConfig(event.getBlock().getWorld());
+        if (wcfg == null) return;
 
         Material type = event.getNewState().getType();
 
@@ -495,7 +493,7 @@ public class WorldGuardBlockListener extends AbstractListener {
                 event.setCancelled(true);
                 return;
             }
-            if (wcfg.useRegions && !StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery()
+            if (wcfg.useRegions && !StateFlag.test(getRegionQuery()
                     .queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.ICE_FORM))) {
                 event.setCancelled(true);
                 return;
@@ -515,7 +513,7 @@ public class WorldGuardBlockListener extends AbstractListener {
                     return;
                 }
             }
-            if (wcfg.useRegions && !StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery()
+            if (wcfg.useRegions && !StateFlag.test(getRegionQuery()
                     .queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.SNOW_FALL))) {
                 event.setCancelled(true);
                 return;
@@ -527,7 +525,7 @@ public class WorldGuardBlockListener extends AbstractListener {
                 event.setCancelled(true);
                 return;
             }
-            if (wcfg.useRegions && !StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery()
+            if (wcfg.useRegions && !StateFlag.test(getRegionQuery()
                     .queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.COPPER_FADE))) {
                 event.setCancelled(true);
                 return;
@@ -548,6 +546,7 @@ public class WorldGuardBlockListener extends AbstractListener {
         }
 
         WorldConfiguration wcfg = getWorldConfig(event.getBlock().getWorld());
+        if (wcfg == null) return;
         Material newType = event.getNewState().getType(); // craftbukkit randomly gives AIR as event.getSource even if that block is not air
 
         if (Materials.isMushroom(newType)) {
@@ -567,7 +566,7 @@ public class WorldGuardBlockListener extends AbstractListener {
                 event.setCancelled(true);
                 return;
             }
-            if (wcfg.useRegions && !StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery()
+            if (wcfg.useRegions && !StateFlag.test(getRegionQuery()
                     .queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.GRASS_SPREAD))) {
                 event.setCancelled(true);
                 return;
@@ -580,7 +579,7 @@ public class WorldGuardBlockListener extends AbstractListener {
                 return;
             }
 
-            if (wcfg.useRegions && !StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery()
+            if (wcfg.useRegions && !StateFlag.test(getRegionQuery()
                     .queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.MYCELIUM_SPREAD))) {
                 event.setCancelled(true);
                 return;
@@ -593,7 +592,7 @@ public class WorldGuardBlockListener extends AbstractListener {
                 return;
             }
 
-            if (wcfg.useRegions && !StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery()
+            if (wcfg.useRegions && !StateFlag.test(getRegionQuery()
                     .queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.VINE_GROWTH))) {
                 event.setCancelled(true);
                 return;
@@ -619,7 +618,7 @@ public class WorldGuardBlockListener extends AbstractListener {
                 return;
             }
 
-            if (wcfg.useRegions && !StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery()
+            if (wcfg.useRegions && !StateFlag.test(getRegionQuery()
                     .queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.SCULK_GROWTH))) {
                 event.setCancelled(true);
                 return;
@@ -639,6 +638,7 @@ public class WorldGuardBlockListener extends AbstractListener {
 
     private void handleGrow(Cancellable event, Location loc, Material type) {
         WorldConfiguration wcfg = getWorldConfig(loc.getWorld());
+        if (wcfg == null) return;
         if (Materials.isCrop(type)) {
             if (wcfg.disableCropGrowth) {
                 event.setCancelled(true);
@@ -660,6 +660,7 @@ public class WorldGuardBlockListener extends AbstractListener {
     public void onBlockFade(BlockFadeEvent event) {
 
         WorldConfiguration wcfg = getWorldConfig(event.getBlock().getWorld());
+        if (wcfg == null) return;
 
         if (event.getBlock().getType() == Material.ICE) {
             if (wcfg.disableIceMelting) {
@@ -667,7 +668,7 @@ public class WorldGuardBlockListener extends AbstractListener {
                 return;
             }
 
-            if (wcfg.useRegions && !StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery()
+            if (wcfg.useRegions && !StateFlag.test(getRegionQuery()
                     .queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.ICE_MELT))) {
                 event.setCancelled(true);
                 return;
@@ -684,7 +685,7 @@ public class WorldGuardBlockListener extends AbstractListener {
                 return;
             }
 
-            if (wcfg.useRegions && !StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery()
+            if (wcfg.useRegions && !StateFlag.test(getRegionQuery()
                     .queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.SNOW_MELT))) {
                 event.setCancelled(true);
                 return;
@@ -694,7 +695,7 @@ public class WorldGuardBlockListener extends AbstractListener {
                 event.setCancelled(true);
                 return;
             }
-            if (wcfg.useRegions && !StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery()
+            if (wcfg.useRegions && !StateFlag.test(getRegionQuery()
                     .queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.SOIL_DRY))) {
                 event.setCancelled(true);
                 return;
@@ -704,7 +705,7 @@ public class WorldGuardBlockListener extends AbstractListener {
                 event.setCancelled(true);
                 return;
             }
-            if (wcfg.useRegions && !StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery()
+            if (wcfg.useRegions && !StateFlag.test(getRegionQuery()
                     .queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.CORAL_FADE))) {
                 event.setCancelled(true);
                 return;
@@ -722,6 +723,7 @@ public class WorldGuardBlockListener extends AbstractListener {
         }
 
         WorldConfiguration wcfg = getWorldConfig(event.getBlock().getWorld());
+        if (wcfg == null) return;
         if (wcfg.blockOtherExplosions) {
             event.setCancelled(true);
         }
@@ -733,6 +735,7 @@ public class WorldGuardBlockListener extends AbstractListener {
     @EventHandler(ignoreCancelled = true)
     public void onMoistureChange(MoistureChangeEvent event) {
         WorldConfiguration wcfg = getWorldConfig(event.getBlock().getWorld());
+        if (wcfg == null) return;
 
         if (wcfg.disableSoilMoistureChange) {
             event.setCancelled(true);

@@ -78,7 +78,11 @@ public class BukkitConfigurationManager extends YamlConfigurationManager {
     public void postLoad() {
         // Load configurations for each world
         for (World world : WorldEdit.getInstance().getPlatformManager().queryCapability(Capability.GAME_HOOKS).getWorlds()) {
-            get(world);
+            // Only load configuration for whitelisted worlds
+            if (isWorldWhitelisted(world.getName())) {
+                get(world);
+            }
+            // Non-whitelisted worlds are silently ignored
         }
         getConfig().save();
     }
@@ -96,6 +100,11 @@ public class BukkitConfigurationManager extends YamlConfigurationManager {
     }
 
     public BukkitWorldConfiguration get(String worldName) {
+        // Check if world is whitelisted
+        if (!isWorldWhitelisted(worldName)) {
+            return null;
+        }
+
         BukkitWorldConfiguration config = worlds.get(worldName);
         BukkitWorldConfiguration newConfig = null;
 

@@ -55,6 +55,7 @@ public class WorldGuardVehicleListener extends AbstractListener {
         }
         World world = vehicle.getWorld();
         WorldConfiguration wcfg = getWorldConfig(world);
+        if (wcfg == null) return;
 
         if (wcfg.useRegions) {
             // Did we move a block?
