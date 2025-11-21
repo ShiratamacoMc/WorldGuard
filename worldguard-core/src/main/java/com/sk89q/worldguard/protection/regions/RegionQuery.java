@@ -118,7 +118,8 @@ public class RegionQuery {
         World world = (World) location.getExtent();
         WorldConfiguration worldConfig = config.get(world);
 
-        if (!worldConfig.useRegions) {
+        // 如果世界配置不存在或未启用区域功能,返回允许所有操作的区域集
+        if (worldConfig == null || !worldConfig.useRegions) {
             return PermissiveRegionSet.getInstance();
         }
 
