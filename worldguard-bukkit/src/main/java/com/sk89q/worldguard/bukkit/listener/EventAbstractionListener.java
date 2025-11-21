@@ -49,7 +49,6 @@ import com.sk89q.worldguard.protection.flags.Flags;
 import io.papermc.lib.PaperLib;
 import io.papermc.paper.event.entity.EntityPushedByEntityAttackEvent;
 import io.papermc.paper.event.player.PlayerOpenSignEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.ExplosionResult;
 import org.bukkit.GameMode;
@@ -1046,8 +1045,9 @@ public class EventAbstractionListener extends AbstractListener {
             }
 
             if (event.isCancelled() && causeHolder instanceof Hopper && wcfg.breakDeniedHoppers) {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(getPlugin(),
-                        () -> ((Hopper) causeHolder).getBlock().breakNaturally());
+                com.sk89q.worldguard.bukkit.util.SchedulerUtil.runTaskLater(getPlugin(),
+                        ((Hopper) causeHolder).getBlock().getLocation(),
+                        () -> ((Hopper) causeHolder).getBlock().breakNaturally(), 1);
             } else {
                 entry.setCancelled(event.isCancelled());
             }

@@ -52,8 +52,16 @@ public class SchedulerReport extends DataReport {
     public SchedulerReport() {
         super("Scheduler");
 
+        // Check if we're running on Folia
+        if (com.sk89q.worldguard.bukkit.util.SchedulerUtil.isFolia()) {
+            append("Scheduler Type", "Folia (Regional Threading)");
+            append("Note", "Task reporting is not available on Folia");
+            return;
+        }
+
         List<BukkitTask> tasks = Bukkit.getServer().getScheduler().getPendingTasks();
 
+        append("Scheduler Type", "Bukkit/Spigot/Paper");
         append("Pending Task Count", tasks.size());
 
         for (BukkitTask task : tasks) {

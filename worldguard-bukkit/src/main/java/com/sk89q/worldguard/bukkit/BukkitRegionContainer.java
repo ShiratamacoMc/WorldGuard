@@ -94,7 +94,7 @@ public class BukkitRegionContainer extends RegionContainer {
             }
         }, plugin);
 
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, cache::invalidateAll, CACHE_INVALIDATION_INTERVAL, CACHE_INVALIDATION_INTERVAL);
+        com.sk89q.worldguard.bukkit.util.SchedulerUtil.runTaskTimer(plugin, cache::invalidateAll, CACHE_INVALIDATION_INTERVAL, CACHE_INVALIDATION_INTERVAL);
     }
 
     public void shutdown() {
