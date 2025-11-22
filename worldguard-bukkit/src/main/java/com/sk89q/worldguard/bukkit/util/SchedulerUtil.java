@@ -51,8 +51,6 @@ public class SchedulerUtil {
         try {
             // Try to load Folia's RegionScheduler class
             Class.forName("io.papermc.paper.threadedregions.scheduler.RegionScheduler");
-            folia = true;
-            logger.info("检测到 Folia 服务器，启用 Folia 调度器支持");
             
             // Load necessary classes and methods
             Class<?> serverClass = Class.forName("org.bukkit.Server");
@@ -75,8 +73,13 @@ public class SchedulerUtil {
             entityRunDelayedMethod = entitySchedulerClass.getMethod("runDelayed", Plugin.class, Runnable.class, Runnable.class, long.class);
             globalRunTimerMethod = globalRegionSchedulerClass.getMethod("runAtFixedRate", Plugin.class, Runnable.class, long.class, long.class);
             
+            // 只有当所有反射方法都成功获取后才设置为 true
+            folia = true;
+            logger.info("检测到 Folia 服务器，启用 Folia 调度器支持");
+            
         } catch (ClassNotFoundException | NoSuchMethodException e) {
-            // Folia not detected, will use traditional Bukkit scheduler
+            // Folia not detected or incompatible, will use traditional Bukkit scheduler
+            folia = false;
             logger.info("使用传统 Bukkit 调度器");
         }
         IS_FOLIA = folia;

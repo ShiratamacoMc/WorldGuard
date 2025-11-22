@@ -64,7 +64,7 @@ public class ChestProtectionListener extends AbstractListener {
             final BukkitWorldConfiguration wcfg = getWorldConfig(event.getWorld());
 
             // Early guard
-            if (!wcfg.signChestProtection) {
+            if (wcfg == null || !wcfg.signChestProtection) {
                 return;
             }
 
@@ -87,7 +87,7 @@ public class ChestProtectionListener extends AbstractListener {
         final BukkitWorldConfiguration wcfg = getWorldConfig(event.getWorld());
 
         // Early guard
-        if (!wcfg.signChestProtection) {
+        if (wcfg == null || !wcfg.signChestProtection) {
             return;
         }
 
@@ -113,7 +113,7 @@ public class ChestProtectionListener extends AbstractListener {
         final BukkitWorldConfiguration wcfg = getWorldConfig(event.getWorld());
 
         // Early guard
-        if (!wcfg.signChestProtection) {
+        if (wcfg == null || !wcfg.signChestProtection) {
             return;
         }
 
@@ -138,7 +138,7 @@ public class ChestProtectionListener extends AbstractListener {
         Player player = event.getPlayer();
         final BukkitWorldConfiguration wcfg = getWorldConfig(event.getBlock().getWorld());
 
-        if (wcfg.signChestProtection) {
+        if (wcfg != null && wcfg.signChestProtection) {
             if ("[Lock]".equalsIgnoreCase(event.getLine(0))) {
                 if (wcfg.isChestProtectedPlacement(BukkitAdapter.adapt(event.getBlock().getLocation()), WorldGuardPlugin.inst().wrapPlayer(player))) {
                     messageHelper.sendMessage(player, "chest.adjacent-not-owned");
@@ -177,7 +177,7 @@ public class ChestProtectionListener extends AbstractListener {
                 event.setLine(0, "[Lock]");
                 messageHelper.sendMessage(player, "chest.protected-by-you");
             }
-        } else if (!wcfg.disableSignChestProtectionCheck) {
+        } else if (wcfg != null && !wcfg.disableSignChestProtectionCheck) {
             if ("[Lock]".equalsIgnoreCase(event.getLine(0))) {
                 messageHelper.sendMessage(player, "chest.protection-disabled");
 

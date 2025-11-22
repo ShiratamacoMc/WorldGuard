@@ -584,7 +584,8 @@ public class EventAbstractionListener extends AbstractListener {
                 // emit a "use block here" event where the player is
                 // standing, which is a hack to protect items that don't
                 // throw events
-                if (item != null && getWorldConfig(player.getWorld()).blockUseAtFeet.test(item)) {
+                var wcfg = getWorldConfig(player.getWorld());
+                if (item != null && wcfg != null && wcfg.blockUseAtFeet.test(item)) {
                     if (Events.fireAndTestCancel(new UseBlockEvent(event, cause, player.getLocation().getBlock()))) {
                         event.setUseInteractedBlock(Result.DENY);
                     }
@@ -707,7 +708,7 @@ public class EventAbstractionListener extends AbstractListener {
 
         // This only applies to regions but nothing else cares about high
         // frequency events at the moment
-        if (!config.useRegions || (!config.highFreqFlags && !config.checkLiquidFlow)) {
+        if (config == null || !config.useRegions || (!config.highFreqFlags && !config.checkLiquidFlow)) {
             return;
         }
 
