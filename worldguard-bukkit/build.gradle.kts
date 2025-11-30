@@ -59,6 +59,7 @@ tasks.named<ShadowJar>("shadowJar") {
         
         // Adventure Serializers
         include(dependency("net.kyori:adventure-text-serializer-legacy"))
+        include(dependency("net.kyori:adventure-text-serializer-plain"))
         include(dependency("net.kyori:adventure-text-serializer-gson"))
         include(dependency("net.kyori:adventure-text-serializer-gson-legacy-impl"))
         include(dependency("net.kyori:adventure-text-serializer-bungeecord"))
@@ -68,6 +69,9 @@ tasks.named<ShadowJar>("shadowJar") {
         // Examination
         include(dependency("net.kyori:examination-api"))
         include(dependency("net.kyori:examination-string"))
+        
+        // Option (required by Adventure)
+        include(dependency("net.kyori:option"))
 
         relocate("org.bstats", "com.sk89q.worldguard.bukkit.bstats")
         relocate("io.papermc.lib", "com.sk89q.worldguard.bukkit.paperlib")
