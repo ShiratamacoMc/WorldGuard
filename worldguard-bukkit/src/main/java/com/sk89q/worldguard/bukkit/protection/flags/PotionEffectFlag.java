@@ -1,0 +1,90 @@
+/*
+ * WorldGuard, a suite of tools for Minecraft
+ * Copyright (C) sk89q <http://www.sk89q.com>
+ * Copyright (C) WorldGuard team and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package com.sk89q.worldguard.bukkit.protection.flags;
+
+import org.bukkit.Registry;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+import com.sk89q.worldguard.protection.flags.Flag;
+import com.sk89q.worldguard.protection.flags.FlagContext;
+import com.sk89q.worldguard.protection.flags.InvalidFlagFormat;
+
+public class PotionEffectFlag extends Flag<PotionEffect> {
+    // This is in ticks
+    // So 20 * 15 gives us 15s of the potion effect
+    // This avoid the effect running out indication
+    // Also we add extra 19 ticks (almost a second) to avoid the timer constantly going from 15s to 14s and back (Its annoying)
+    private static final int POTION_EFFECT_DURATION = 20 * 15 + 19;
+    
+    public PotionEffectFlag(String name) {
+        super(name);
+    }
+
+    @Override
+    public Object marshal(PotionEffect o) {
+        return o.getType().getKey().toString() + " " + o.getAmplifier() + " " + o.hasParticles();
+    }
+
+    @Override
+    public PotionEffect parseInput(FlagContext context) throws InvalidFlagFormat {
+        String[] split = context.getUserInput().trim().split(" ");
+        if (split.length < 1 || split.length > 3) {
+            throw new InvalidFlagFormat("Please use the following format: <effect name> [effect amplifier] [show particles]");
+        }
+
+        PotionEffectType potionEffect = Registry.EFFECT.match(split[0]);
+        if (potionEffect == null) {
+            potionEffect = PotionEffectType.getByName(split[0]);
+        }
+
+        if (potionEffect == null) {
+            throw new InvalidFlagFormat("Unable to find the potion effect type! Input valid namespaced ids.");
+        }
+        
+        return this.buildPotionEffect(split);
+    }
+
+    @Override
+    public PotionEffect unmarshal(Object o) {
+        String[] split = o.toString().split(" ");
+        
+        return this.buildPotionEffect(split);
+    }
+    
+    private PotionEffect buildPotionEffect(String[] split) {
+        PotionEffectType potionEffect = Registry.EFFECT.match(split[0]);
+        if (potionEffect == null) {
+            potionEffect = PotionEffectType.getByName(split[0]);
+        }
+        
+        int amplifier = 0;
+        if (split.length >= 2) {
+            amplifier = Integer.parseInt(split[1]);
+        }
+        
+        boolean showParticles = false;
+        if (split.length >= 3) {
+            showParticles = Boolean.parseBoolean(split[2]);
+        }
+        
+        return new PotionEffect(potionEffect, POTION_EFFECT_DURATION, amplifier, true, showParticles);
+    }
+}

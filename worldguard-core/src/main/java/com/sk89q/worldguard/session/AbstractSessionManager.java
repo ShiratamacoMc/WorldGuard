@@ -109,7 +109,7 @@ public abstract class AbstractSessionManager implements SessionManager {
     @Override
     public boolean registerHandler(Handler.Factory<? extends Handler> factory, @Nullable Handler.Factory<? extends Handler> after) {
         if (factory == null) return false;
-        WorldGuard.logger.log(Level.INFO, "Registering session handler "
+        WorldGuard.logger.log(Level.FINE, "Registering session handler "
                 + factory.getClass().getEnclosingClass().getName());
         hasCustom = true;
         if (after == null) {

@@ -155,6 +155,9 @@ public class WorldGuardPlugin extends JavaPlugin {
 
         getDataFolder().mkdirs(); // Need to create the plugins/WorldGuard folder
 
+        // Check for WorldGuardExtraFlags plugin
+        checkForExtraFlagsPlugin();
+
         // Initialize i18n and MiniMessage support
         i18nConfig = new I18nConfig(this);
         i18nConfig.load();
@@ -174,7 +177,14 @@ public class WorldGuardPlugin extends JavaPlugin {
 
         WorldGuard.getInstance().setPlatform(platform = new BukkitWorldGuardPlatform()); // Initialise WorldGuard
         WorldGuard.getInstance().setup();
+        
+        // Register Bukkit-specific extra flags
+        registerBukkitExtraFlags();
+        
         BukkitSessionManager sessionManager = (BukkitSessionManager) platform.getSessionManager();
+
+        // Register ExtraFlags handlers
+        registerExtraFlagsHandlers(sessionManager);
 
         // Set the proper command injector
         @SuppressWarnings("deprecation")
@@ -598,6 +608,84 @@ public class WorldGuardPlugin extends JavaPlugin {
      */
     public com.sk89q.worldguard.bukkit.util.WorldWhitelistChecker getWorldWhitelistChecker() {
         return worldWhitelistChecker;
+    }
+
+    /**
+     * Check for WorldGuardExtraFlags plugin and warn if detected.
+     */
+    private void checkForExtraFlagsPlugin() {
+        Plugin extraFlagsPlugin = getServer().getPluginManager().getPlugin("WorldGuardExtraFlags");
+        if (extraFlagsPlugin != null) {
+            getLogger().warning("========================================");
+            getLogger().warning("检测到 WorldGuardExtraFlags 插件!");
+            getLogger().warning("WorldGuard 已内置所有 ExtraFlags 功能");
+            getLogger().warning("不需要安装 WorldGuardExtraFlags 插件");
+            getLogger().warning("请删除 WorldGuardExtraFlags.jar 文件");
+            getLogger().warning("========================================");
+            getLogger().warning("Detected WorldGuardExtraFlags plugin!");
+            getLogger().warning("WorldGuard now has all ExtraFlags features built-in");
+            getLogger().warning("WorldGuardExtraFlags plugin is NOT needed");
+            getLogger().warning("Please remove WorldGuardExtraFlags.jar file");
+            getLogger().warning("========================================");
+            
+            // Disable WorldGuardExtraFlags plugin
+            try {
+                getServer().getPluginManager().disablePlugin(extraFlagsPlugin);
+                getLogger().info("已自动禁用 WorldGuardExtraFlags 插件 / Automatically disabled WorldGuardExtraFlags plugin");
+            } catch (Exception e) {
+                getLogger().warning("无法自动禁用 WorldGuardExtraFlags 插件,请手动删除 / Failed to disable WorldGuardExtraFlags, please remove manually");
+            }
+        }
+    }
+
+    /**
+     * Register Bukkit-specific extra flags that require Bukkit API.
+     */
+    private void registerBukkitExtraFlags() {
+        try {
+            com.sk89q.worldguard.protection.flags.registry.FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
+            registry.register(com.sk89q.worldguard.bukkit.protection.flags.BukkitExtraFlags.BLOCKED_EFFECTS);
+            registry.register(com.sk89q.worldguard.bukkit.protection.flags.BukkitExtraFlags.GIVE_EFFECTS);
+            registry.register(com.sk89q.worldguard.bukkit.protection.flags.BukkitExtraFlags.PLAY_SOUNDS);
+            getLogger().info("Registered Bukkit-specific extra flags");
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "Failed to register Bukkit-specific extra flags", e);
+        }
+    }
+
+    /**
+     * Register ExtraFlags session handlers.
+     */
+    private void registerExtraFlagsHandlers(BukkitSessionManager sessionManager) {
+        try {
+            // Speed handlers
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.WalkSpeedFlagHandler.FACTORY(), null);
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.FlySpeedFlagHandler.FACTORY(), null);
+            
+            // State handlers
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.FlyFlagHandler.FACTORY(), null);
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.GlideFlagHandler.FACTORY(), null);
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.GodmodeFlagHandler.FACTORY(), null);
+            
+            // Teleport handlers
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.TeleportOnEntryFlagHandler.FACTORY(this), null);
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.TeleportOnExitFlagHandler.FACTORY(this), null);
+            
+            // Command handlers
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.CommandOnEntryFlagHandler.FACTORY(), null);
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.CommandOnExitFlagHandler.FACTORY(), null);
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.ConsoleCommandOnEntryFlagHandler.FACTORY(), null);
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.ConsoleCommandOnExitFlagHandler.FACTORY(), null);
+            
+            // Effect handlers
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.BlockedEffectsFlagHandler.FACTORY(), null);
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.GiveEffectsFlagHandler.FACTORY(), null);
+            sessionManager.registerHandler(com.sk89q.worldguard.session.handler.extraflags.PlaySoundsFlagHandler.FACTORY(this), null);
+            
+            getLogger().info("Registered ExtraFlags session handlers");
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "Failed to register ExtraFlags session handlers", e);
+        }
     }
 
 }

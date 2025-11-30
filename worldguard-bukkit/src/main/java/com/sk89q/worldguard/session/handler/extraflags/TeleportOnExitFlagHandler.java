@@ -1,0 +1,101 @@
+/*
+ * WorldGuard, a suite of tools for Minecraft
+ * Copyright (C) sk89q <http://www.sk89q.com>
+ * Copyright (C) WorldGuard team and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package com.sk89q.worldguard.session.handler.extraflags;
+
+import com.sk89q.worldedit.bukkit.BukkitPlayer;
+import com.sk89q.worldedit.util.Location;
+import com.sk89q.worldedit.world.World;
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.session.handler.FlagValueChangeHandler;
+import com.sk89q.worldguard.session.handler.Handler;
+
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.session.MoveType;
+import com.sk89q.worldguard.session.Session;
+
+import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.bukkit.util.WorldGuardExtraFlagsUtils;
+import org.bukkit.plugin.Plugin;
+
+public class TeleportOnExitFlagHandler extends FlagValueChangeHandler<Location>
+{
+	public static final Factory FACTORY(Plugin plugin)
+	{
+		return new Factory(plugin);
+	}
+	
+    public static class Factory extends Handler.Factory<TeleportOnExitFlagHandler>
+    {
+		private final Plugin plugin;
+
+		public Factory(Plugin plugin)
+		{
+			this.plugin = plugin;
+		}
+
+		@Override
+        public TeleportOnExitFlagHandler create(Session session)
+        {
+            return new TeleportOnExitFlagHandler(this.plugin, session);
+        }
+    }
+
+	private final Plugin plugin;
+	   
+	protected TeleportOnExitFlagHandler(Plugin plugin, Session session)
+	{
+		super(session, Flags.TELEPORT_ON_EXIT);
+
+		this.plugin = plugin;
+	}
+
+	@Override
+	protected void onInitialValue(LocalPlayer player, ApplicableRegionSet set, Location value)
+	{
+	}
+
+	@Override
+	protected boolean onSetValue(LocalPlayer player, Location from, Location to, ApplicableRegionSet toSet, Location currentValue, Location lastValue, MoveType moveType)
+	{
+		this.handleValue(player, (World) from.getExtent(), lastValue);
+		return true;
+	}
+
+	@Override
+	protected boolean onAbsentValue(LocalPlayer player, Location from, Location to, ApplicableRegionSet toSet, Location lastValue, MoveType moveType)
+	{
+		this.handleValue(player, (World) from.getExtent(), lastValue);
+		return true;
+	}
+
+	public void handleValue(LocalPlayer player, World world, Location value)
+	{
+		if (this.getSession().getManager().hasBypass(player, world))
+		{
+			return;
+		}
+
+		if (value != null && WorldGuardExtraFlagsUtils.hasNoTeleportLoop(this.plugin, ((BukkitPlayer) player).getPlayer(), value))
+		{
+			player.setLocation(value);
+		}
+	}
+}
+
