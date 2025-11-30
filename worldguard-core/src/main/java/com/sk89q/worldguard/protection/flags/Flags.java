@@ -28,6 +28,9 @@ import com.sk89q.worldedit.world.entity.EntityType;
 import com.sk89q.worldedit.world.gamemode.GameMode;
 import com.sk89q.worldedit.world.weather.WeatherType;
 import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.extraflags.CommandStringCaseSensitiveFlag;
+import com.sk89q.worldguard.protection.flags.extraflags.CustomSetFlag;
+import com.sk89q.worldguard.protection.flags.extraflags.ForcedStateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 
@@ -242,6 +245,44 @@ public final class Flags {
             LegacyComponentSerializer.INSTANCE.serialize(TextComponent.of("").append(TextComponent.of("Hey!",
                     TextColor.RED, Sets.newHashSet(TextDecoration.BOLD)))
                     .append(TextComponent.of(" You are not permitted to leave this area.", TextColor.GRAY)))));
+
+    // Extra flags - teleportation
+    public static final LocationFlag TELEPORT_ON_ENTRY = register(new LocationFlag("teleport-on-entry"));
+    public static final LocationFlag TELEPORT_ON_EXIT = register(new LocationFlag("teleport-on-exit"));
+    
+    // Extra flags - commands
+    public static final SetFlag<String> COMMAND_ON_ENTRY = register(new CustomSetFlag<>("command-on-entry", new CommandStringCaseSensitiveFlag(null)));
+    public static final SetFlag<String> COMMAND_ON_EXIT = register(new CustomSetFlag<>("command-on-exit", new CommandStringCaseSensitiveFlag(null)));
+    public static final SetFlag<String> CONSOLE_COMMAND_ON_ENTRY = register(new CustomSetFlag<>("console-command-on-entry", new CommandStringCaseSensitiveFlag(null)));
+    public static final SetFlag<String> CONSOLE_COMMAND_ON_EXIT = register(new CustomSetFlag<>("console-command-on-exit", new CommandStringCaseSensitiveFlag(null)));
+    
+    // Extra flags - movement
+    public static final DoubleFlag WALK_SPEED = register(new DoubleFlag("walk-speed"));
+    public static final DoubleFlag FLY_SPEED = register(new DoubleFlag("fly-speed"));
+    public static final StateFlag FLY = register(new StateFlag("fly", false));
+    public static final ForcedStateFlag GLIDE = register(new ForcedStateFlag("glide"));
+    
+    // Extra flags - death
+    public static final BooleanFlag KEEP_INVENTORY = register(new BooleanFlag("keep-inventory"));
+    public static final BooleanFlag KEEP_EXP = register(new BooleanFlag("keep-exp"));
+    public static final LocationFlag RESPAWN_LOCATION = register(new LocationFlag("respawn-location"));
+    
+    // Extra flags - chat
+    public static final StringFlag CHAT_PREFIX = register(new StringFlag("chat-prefix"));
+    public static final StringFlag CHAT_SUFFIX = register(new StringFlag("chat-suffix"));
+    
+    // Extra flags - protection
+    public static final StateFlag GODMODE = register(new StateFlag("godmode", false));
+    public static final StateFlag WORLDEDIT = register(new StateFlag("worldedit", true));
+    
+    // Extra flags - world mechanics
+    public static final StateFlag FROSTWALKER = register(new StateFlag("frostwalker", true));
+    public static final StateFlag NETHER_PORTALS = register(new StateFlag("nether-portals", true));
+    public static final StateFlag CHUNK_UNLOAD = register(new StateFlag("chunk-unload", true));
+    public static final StateFlag ITEM_DURABILITY = register(new StateFlag("item-durability", true));
+    
+    // Extra flags - spawn location
+    public static final LocationFlag JOIN_LOCATION = register(new LocationFlag("join-location"));
 
     private Flags() {
     }
