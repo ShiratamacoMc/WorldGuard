@@ -60,7 +60,7 @@ public class BukkitConfigurationManager extends YamlConfigurationManager {
         // 创建一个默认配置对象，用于未列入白名单的世界
         // 这样外部插件调用 API 不会收到 null，但不会生成配置文件
         if (defaultConfig == null) {
-            defaultConfig = new BukkitWorldConfiguration(plugin, "__default__", this.getConfig());
+            defaultConfig = new BukkitWorldConfiguration(plugin, "__default__", this.getConfig(), false);
         }
     }
 

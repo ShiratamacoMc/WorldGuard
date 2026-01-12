@@ -82,6 +82,19 @@ public class BukkitWorldConfiguration extends YamlWorldConfiguration {
      */
     @SuppressWarnings("this-escape")
     public BukkitWorldConfiguration(WorldGuardPlugin plugin, String worldName, YAMLProcessor parentConfig) {
+        this(plugin, worldName, parentConfig, true);
+    }
+
+    /**
+     * Construct the object.
+     *
+     * @param plugin The WorldGuardPlugin instance
+     * @param worldName The world name that this BukkitWorldConfiguration is for.
+     * @param parentConfig The parent configuration to read defaults from
+     * @param createFiles Whether to create configuration files on disk
+     */
+    @SuppressWarnings("this-escape")
+    public BukkitWorldConfiguration(WorldGuardPlugin plugin, String worldName, YAMLProcessor parentConfig, boolean createFiles) {
         File baseFolder = new File(plugin.getDataFolder(), "worlds/" + worldName);
         File configFile = new File(baseFolder, "config.yml");
         blacklistFile = new File(baseFolder, "blacklist.txt");
@@ -89,13 +102,16 @@ public class BukkitWorldConfiguration extends YamlWorldConfiguration {
         this.worldName = worldName;
         this.parentConfig = parentConfig;
 
-        plugin.createDefaultConfiguration(configFile, "config_world.yml");
-        plugin.createDefaultConfiguration(blacklistFile, "blacklist.txt");
+        if (createFiles) {
+            plugin.createDefaultConfiguration(configFile, "config_world.yml");
+            plugin.createDefaultConfiguration(blacklistFile, "blacklist.txt");
+        }
 
         config = new YAMLProcessor(configFile, true, YAMLFormat.EXTENDED);
         loadConfiguration();
 
-        if (summaryOnStart) {
+        // 只为实际创建了配置文件的世界输出日志
+        if (summaryOnStart && createFiles) {
             log.info("Loaded configuration for world '" + worldName + "'");
         }
     }
