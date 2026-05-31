@@ -1,8 +1,17 @@
 # Changelog
 
+## 7.0.17
+
+* Fix cocoa not being treated as a crop in relevant flags
+* Fix overlapping game mode flags sometimes not storing the expected previous game mode
+* Replace PaperLib functionality that doesn't behave as expected on MC 26.1+
+
 ## 7.0.16
 
-* Update to 1.21.11
+* Update to 1.21.11.
+* Added experimental Folia support.
+* Workaround an issue where some item/block names aren't adequately translated by the client.
+* Workaround a duplication bug in Paper.
 
 ## 7.0.15
 

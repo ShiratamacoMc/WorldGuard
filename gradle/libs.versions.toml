@@ -39,7 +39,7 @@ adventure-text-serializer-legacy = "net.kyori:adventure-text-serializer-legacy:4
 adventure-text-serializer-gson = "net.kyori:adventure-text-serializer-gson:4.25.0"
 
 dummypermscompat = "com.sk89q:dummypermscompat:1.10"
-bstats-bukkit = "org.bstats:bstats-bukkit:2.2.1"
+bstats-bukkit = "org.bstats:bstats-bukkit:3.2.1"
 
 prtree = "org.khelekore:prtree:1.5.0"
 

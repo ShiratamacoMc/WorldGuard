@@ -4,3 +4,4 @@ version: "${internalVersion}"
 depend: [WorldEdit]
 api-version: "1.21.11"
 description: A powerful region protection and world management plugin
+folia-supported: true
