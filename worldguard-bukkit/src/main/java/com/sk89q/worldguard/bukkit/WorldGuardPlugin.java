@@ -610,7 +610,6 @@ public class WorldGuardPlugin extends JavaPlugin {
         return playerMoveListener;
     }
 
-<<<<<<< HEAD
     /**
      * Gets the i18n configuration.
      *
