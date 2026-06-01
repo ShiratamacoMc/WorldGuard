@@ -183,10 +183,13 @@ public class WorldGuardPlugin extends JavaPlugin {
         PermissionsResolverManager.initialize(this);
 
         WorldGuard.getInstance().setPlatform(platform = new BukkitWorldGuardPlatform()); // Initialise WorldGuard
-        WorldGuard.getInstance().setup();
         
-        // Register Bukkit-specific extra flags
+        // Register Bukkit-specific extra flags BEFORE setup() loads region data,
+        // otherwise give-effects/blocked-effects/play-sounds get registered as
+        // UnknownFlag during unmarshal and cause a FlagConflictException here.
         registerBukkitExtraFlags();
+        
+        WorldGuard.getInstance().setup();
         
         BukkitSessionManager sessionManager = (BukkitSessionManager) platform.getSessionManager();
 
