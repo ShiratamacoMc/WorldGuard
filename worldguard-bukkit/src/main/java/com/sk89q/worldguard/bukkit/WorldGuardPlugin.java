@@ -81,7 +81,6 @@ import com.sk89q.worldguard.protection.managers.storage.sql.SQLDriver;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.util.logging.RecordMessagePrefixer;
 import io.papermc.lib.PaperLib;
-import io.papermc.paper.ServerBuildInfo;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.DrilldownPie;
 import org.bstats.charts.SimplePie;
@@ -726,13 +725,12 @@ public class WorldGuardPlugin extends JavaPlugin {
 
     private final LazyReference<Boolean> folia = LazyReference.from(() -> {
         try {
-            // Folia is Paper-based, so this is a good first check.
-            if (PaperLib.isPaper()) {
-                return ServerBuildInfo.buildInfo().isBrandCompatible(net.kyori.adventure.key.Key.key("papermc", "folia"));
-            }
-        } catch (Throwable t) {
-            // Ignore, this likely means an outdated version.
-            LOGGER.warn("Failed to check if server is running Folia", t);
+            // Check for a Folia-specific class to detect Folia/Folia-based servers (e.g. Luminol).
+            // This avoids using relocated kyori Key class which causes NoSuchMethodError with ServerBuildInfo.
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            return true;
+        } catch (ClassNotFoundException e) {
+            // Not Folia
         }
 
         return false;
