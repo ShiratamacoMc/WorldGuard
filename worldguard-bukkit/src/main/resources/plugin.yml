@@ -2,6 +2,6 @@ name: WorldGuard
 main: com.sk89q.worldguard.bukkit.WorldGuardPlugin
 version: "${internalVersion}"
 depend: [WorldEdit]
-api-version: "26.1"
+api-version: "1.21"
 description: A powerful region protection and world management plugin
 folia-supported: true
