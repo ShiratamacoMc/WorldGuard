@@ -123,7 +123,7 @@ public class BukkitSessionManager extends AbstractSessionManager implements Runn
     }
 
     private boolean isWorldManaged(Player player) {
-        return WorldGuardPlugin.inst().getConfigManager().get(player.getWorld().getName()) != null;
+        return WorldGuardPlugin.inst().getConfigManager().getManaged(player.getWorld().getName()) != null;
     }
 
     public void shutdown() {

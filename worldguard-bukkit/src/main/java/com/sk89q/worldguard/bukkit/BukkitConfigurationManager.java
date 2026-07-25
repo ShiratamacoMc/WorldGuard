@@ -34,6 +34,7 @@ public class BukkitConfigurationManager extends YamlConfigurationManager {
 
     @Unreported private WorldGuardPlugin plugin;
     @Unreported private ConcurrentMap<String, BukkitWorldConfiguration> worlds = new ConcurrentHashMap<>();
+    @Unreported private volatile BukkitWorldConfiguration unmanagedWorldConfig;
 
     private boolean hasCommandBookGodMode;
     boolean extraStats;
@@ -72,6 +73,7 @@ public class BukkitConfigurationManager extends YamlConfigurationManager {
     @Override
     public void unload() {
         worlds.clear();
+        unmanagedWorldConfig = null;
     }
 
     @Override
@@ -91,16 +93,39 @@ public class BukkitConfigurationManager extends YamlConfigurationManager {
      * Get the configuration for a world.
      *
      * @param world The world to get the configuration for
-     * @return {@code world}'s configuration, or {@code null} when the world is not whitelisted
+     * @return {@code world}'s configuration, or an inert configuration when the world is not whitelisted
      */
     @Override
     public BukkitWorldConfiguration get(World world) {
-        String worldName = world.getName();
-        return get(worldName);
+        return get(world.getName());
     }
 
+    /**
+     * Gets a world configuration for API consumers.
+     *
+     * <p>WorldGuard integrations have historically assumed this method never
+     * returns {@code null}. Return a shared inert configuration for worlds
+     * outside the whitelist so those integrations continue to work, without
+     * creating a world directory or allowing WorldGuard to manage the world.</p>
+     *
+     * @param worldName the world name
+     * @return the managed configuration, or an inert configuration
+     */
     public BukkitWorldConfiguration get(String worldName) {
-        // 检查世界是否列入白名单
+        if (!isWorldWhitelisted(worldName)) {
+            return getUnmanagedWorldConfig();
+        }
+
+        return getManaged(worldName);
+    }
+
+    /**
+     * Gets a configuration only when WorldGuard manages the world.
+     *
+     * @param worldName the world name
+     * @return the managed configuration, or {@code null} when the world is not whitelisted
+     */
+    public BukkitWorldConfiguration getManaged(String worldName) {
         if (!isWorldWhitelisted(worldName)) {
             return null;
         }
@@ -108,7 +133,6 @@ public class BukkitConfigurationManager extends YamlConfigurationManager {
         BukkitWorldConfiguration config = worlds.get(worldName);
         BukkitWorldConfiguration newConfig = null;
 
-        // 只为白名单中的世界创建和缓存配置
         while (config == null) {
             if (newConfig == null) {
                 File configFile = new File(plugin.getDataFolder(), "worlds/" + worldName + "/config.yml");
@@ -118,6 +142,21 @@ public class BukkitConfigurationManager extends YamlConfigurationManager {
             config = worlds.get(worldName);
         }
 
+        return config;
+    }
+
+    private BukkitWorldConfiguration getUnmanagedWorldConfig() {
+        BukkitWorldConfiguration config = unmanagedWorldConfig;
+        if (config == null) {
+            synchronized (this) {
+                config = unmanagedWorldConfig;
+                if (config == null) {
+                    config = new BukkitWorldConfiguration(plugin, "__unmanaged__", getConfig(), false);
+                    config.disableForUnmanagedWorld();
+                    unmanagedWorldConfig = config;
+                }
+            }
+        }
         return config;
     }
 

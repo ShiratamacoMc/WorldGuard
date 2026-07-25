@@ -146,6 +146,18 @@ public class BukkitWorldConfiguration extends YamlWorldConfiguration {
     }
 
     /**
+     * Makes this configuration safe to expose for a world that WorldGuard does
+     * not manage. It exists solely for API compatibility and is never saved.
+     */
+    void disableForUnmanagedWorld() {
+        useRegions = false;
+        simulateSponge = false;
+        blockPluginSpawning = false;
+        blockCreatureSpawn.clear();
+        blacklist = null;
+    }
+
+    /**
      * Load the configuration.
      */
     @Override

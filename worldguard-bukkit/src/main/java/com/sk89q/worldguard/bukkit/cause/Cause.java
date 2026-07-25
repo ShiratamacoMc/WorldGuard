@@ -123,7 +123,7 @@ public final class Cause {
             }
 
             Entity entity = (Entity) object;
-            BukkitWorldConfiguration config = WorldGuardPlugin.inst().getConfigManager().get(entity.getWorld().getName());
+            BukkitWorldConfiguration config = WorldGuardPlugin.inst().getConfigManager().getManaged(entity.getWorld().getName());
 
             if (config == null || !config.usePaperEntityOrigin || entity.getOrigin() == null) {
                 return false;

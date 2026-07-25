@@ -109,7 +109,7 @@ class AbstractListener implements Listener {
      * @return The configuration for {@code world}, or null if world is not whitelisted
      */
     protected static BukkitWorldConfiguration getWorldConfig(String world) {
-        return getConfig().get(world);
+        return getConfig().getManaged(world);
     }
 
     protected static BukkitWorldConfiguration getWorldConfig(org.bukkit.World world) {
