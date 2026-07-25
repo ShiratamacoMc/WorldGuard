@@ -110,6 +110,9 @@ public class BukkitSessionManager extends AbstractSessionManager implements Runn
 
     @Override
     public boolean hasBypass(LocalPlayer player, World world) {
+        if (!WorldGuardPlugin.inst().getConfigManager().isWorldWhitelisted(world.getName())) {
+            return false;
+        }
         if (player instanceof BukkitPlayer bukkitPlayer) {
             WorldConfiguration config = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world);
             if (config != null && Entities.isNPC(bukkitPlayer.getPlayer()) && config.fakePlayerBuildOverride) {

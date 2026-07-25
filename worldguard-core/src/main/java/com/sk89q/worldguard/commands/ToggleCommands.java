@@ -63,10 +63,11 @@ public class ToggleCommands {
             world = worldGuard.getPlatform().getMatcher().matchWorld(sender, args.getString(0));
         }
         
-        WorldConfiguration wcfg = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world);
-        if (wcfg == null) {
+        ConfigurationManager configManager = WorldGuard.getInstance().getPlatform().getGlobalStateManager();
+        if (!configManager.isWorldWhitelisted(world.getName())) {
             throw new CommandException(Messages.get("command.world-not-enabled"));
         }
+        WorldConfiguration wcfg = configManager.get(world);
 
         if (!wcfg.fireSpreadDisableToggle) {
             worldGuard.getPlatform().broadcastNotification(
@@ -92,10 +93,11 @@ public class ToggleCommands {
             world = worldGuard.getPlatform().getMatcher().matchWorld(sender, args.getString(0));
         }
         
-        WorldConfiguration wcfg = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world);
-        if (wcfg == null) {
+        ConfigurationManager configManager = WorldGuard.getInstance().getPlatform().getGlobalStateManager();
+        if (!configManager.isWorldWhitelisted(world.getName())) {
             throw new CommandException(Messages.get("command.world-not-enabled"));
         }
+        WorldConfiguration wcfg = configManager.get(world);
 
         if (wcfg.fireSpreadDisableToggle) {
             worldGuard.getPlatform().broadcastNotification(LabelFormat.wrap(Messages.get("command.fire-spread-enabled",

@@ -44,6 +44,7 @@ import com.sk89q.worldedit.util.formatting.text.format.TextDecoration;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.config.ConfigurationManager;
 import com.sk89q.worldguard.config.WorldConfiguration;
 import com.sk89q.worldguard.internal.permission.RegionPermissionModel;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
@@ -275,10 +276,11 @@ class RegionCommandsBase {
      * @throws CommandException thrown if the manager is null
      */
     protected static RegionManager checkRegionManager(World world) throws CommandException {
-        WorldConfiguration config = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world);
-        if (config == null) {
+        ConfigurationManager configurationManager = WorldGuard.getInstance().getPlatform().getGlobalStateManager();
+        if (!configurationManager.isWorldWhitelisted(world.getName())) {
             throw new CommandException(Messages.get("command.world-not-enabled"));
         }
+        WorldConfiguration config = configurationManager.get(world);
         if (!config.useRegions) {
             throw new CommandException(Messages.get("error.region-support-disabled"));
         }

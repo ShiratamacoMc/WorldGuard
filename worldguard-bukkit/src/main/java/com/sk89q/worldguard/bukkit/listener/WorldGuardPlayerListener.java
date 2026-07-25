@@ -110,7 +110,11 @@ public class WorldGuardPlayerListener extends AbstractListener {
         ConfigurationManager cfg = getConfig();
         WorldConfiguration wcfg = getWorldConfig(world);
 
-        if (cfg.activityHaltToggle && wcfg != null) {
+        if (wcfg == null) {
+            return;
+        }
+
+        if (cfg.activityHaltToggle) {
             messageHelper.sendMessage(player, "system.halt-activity");
 
             int removed = 0;
@@ -127,13 +131,11 @@ public class WorldGuardPlayerListener extends AbstractListener {
             }
         }
 
-        if (wcfg != null && wcfg.fireSpreadDisableToggle) {
+        if (wcfg.fireSpreadDisableToggle) {
             messageHelper.sendMessage(player, "system.fire-spread-disabled");
         }
 
-        if (wcfg != null) {
-            Events.fire(new ProcessPlayerEvent(player));
-        }
+        Events.fire(new ProcessPlayerEvent(player));
         WorldGuard.getInstance().getExecutorService().submit(() ->
             WorldGuard.getInstance().getProfileCache().put(new Profile(player.getUniqueId(), player.getName())));
     }
@@ -175,6 +177,9 @@ public class WorldGuardPlayerListener extends AbstractListener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerLogin(PlayerLoginEvent event) {
         Player player = event.getPlayer();
+        if (!isWorldWhitelisted(player.getWorld())) {
+            return;
+        }
         ConfigurationManager cfg = getConfig();
 
         String hostKey = cfg.hostKeys.get(player.getUniqueId().toString());
@@ -213,15 +218,15 @@ public class WorldGuardPlayerListener extends AbstractListener {
         Player player = event.getPlayer();
         World world = player.getWorld();
 
+        ConfigurationManager cfg = getConfig();
+        WorldConfiguration wcfg = getWorldConfig(world);
+        if (wcfg == null) return;
+
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             handleBlockRightClick(event);
         } else if (event.getAction() == Action.PHYSICAL) {
             handlePhysicalInteract(event);
         }
-
-        ConfigurationManager cfg = getConfig();
-        WorldConfiguration wcfg = getWorldConfig(world);
-        if (wcfg == null) return;
 
         if (wcfg.removeInfiniteStacks
                 && !getPlugin().hasPermission(player, "worldguard.override.infinite-stack")) {

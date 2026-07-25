@@ -486,8 +486,9 @@ public class WorldGuardPlugin extends JavaPlugin implements CommandInspector, Ta
     public boolean hasPermission(CommandSender sender, String perm) {
         if (sender.isOp()) {
             if (sender instanceof Player) {
-                WorldConfiguration config = platform.getGlobalStateManager().get(BukkitAdapter.adapt(((Player) sender).getWorld()));
-                if (config != null && config.opPermissions) {
+                Player player = (Player) sender;
+                WorldConfiguration config = platform.getGlobalStateManager().get(BukkitAdapter.adapt(player.getWorld()));
+                if (getConfigManager().isWorldWhitelisted(player.getWorld().getName()) && config.opPermissions) {
                     return true;
                 }
             } else {

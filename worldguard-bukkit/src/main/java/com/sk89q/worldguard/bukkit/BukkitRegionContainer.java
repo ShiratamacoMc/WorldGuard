@@ -69,16 +69,25 @@ public class BukkitRegionContainer extends RegionContainer {
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onWorldLoad(WorldLoadEvent event) {
+                if (!plugin.getConfigManager().isWorldWhitelisted(event.getWorld().getName())) {
+                    return;
+                }
                 load(BukkitAdapter.adapt(event.getWorld()));
             }
 
             @EventHandler
             public void onWorldUnload(WorldUnloadEvent event) {
+                if (!plugin.getConfigManager().isWorldWhitelisted(event.getWorld().getName())) {
+                    return;
+                }
                 unload(BukkitAdapter.adapt(event.getWorld()));
             }
 
             @EventHandler
             public void onChunkLoad(ChunkLoadEvent event) {
+                if (!plugin.getConfigManager().isWorldWhitelisted(event.getWorld().getName())) {
+                    return;
+                }
                 RegionManager manager = get(BukkitAdapter.adapt(event.getWorld()));
                 if (manager != null) {
                     Chunk chunk = event.getChunk();
@@ -88,6 +97,9 @@ public class BukkitRegionContainer extends RegionContainer {
 
             @EventHandler
             public void onChunkUnload(ChunkUnloadEvent event) {
+                if (!plugin.getConfigManager().isWorldWhitelisted(event.getWorld().getName())) {
+                    return;
+                }
                 RegionManager manager = get(BukkitAdapter.adapt(event.getWorld()));
                 if (manager != null) {
                     Chunk chunk = event.getChunk();

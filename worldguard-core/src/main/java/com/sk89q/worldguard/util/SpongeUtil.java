@@ -28,6 +28,7 @@ import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.config.ConfigurationManager;
 import com.sk89q.worldguard.config.WorldConfiguration;
 
 import java.util.Map;
@@ -54,10 +55,11 @@ public final class SpongeUtil {
      * @param oz The z coordinate of the 'sponge' block
      */
     public static void clearSpongeWater(World world, int ox, int oy, int oz) {
-        WorldConfiguration wcfg = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world);
-        if (wcfg == null) {
+        ConfigurationManager configurationManager = WorldGuard.getInstance().getPlatform().getGlobalStateManager();
+        if (!configurationManager.isWorldWhitelisted(world.getName())) {
             return;
         }
+        WorldConfiguration wcfg = configurationManager.get(world);
 
         for (int cx = -wcfg.spongeRadius; cx <= wcfg.spongeRadius; cx++) {
             for (int cy = -wcfg.spongeRadius; cy <= wcfg.spongeRadius; cy++) {
@@ -113,10 +115,11 @@ public final class SpongeUtil {
      * @param oz The z coordinate of the 'sponge' block
      */
     public static void addSpongeWater(World world, int ox, int oy, int oz) {
-        WorldConfiguration wcfg = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world);
-        if (wcfg == null) {
+        ConfigurationManager configurationManager = WorldGuard.getInstance().getPlatform().getGlobalStateManager();
+        if (!configurationManager.isWorldWhitelisted(world.getName())) {
             return;
         }
+        WorldConfiguration wcfg = configurationManager.get(world);
 
         // The negative x edge
         int cx = ox - wcfg.spongeRadius - 1;
