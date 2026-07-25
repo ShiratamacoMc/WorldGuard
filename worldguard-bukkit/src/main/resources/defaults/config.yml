@@ -28,7 +28,7 @@ world-whitelist:
         - world
         - world_nether
         - world_the_end
-    # 在非白名单世界中向玩家显示的消息（支持 MiniMessage 格式）
-    deny-message: "<red>此世界不在WorldGuard保护白名单中。</red>"
+    # Optional per-server override for the localized deny message (supports MiniMessage).
+    # deny-message: "<red>This world is not managed by WorldGuard.</red>"
 
 # -- This should be automatically replaced by the plugin in-game --

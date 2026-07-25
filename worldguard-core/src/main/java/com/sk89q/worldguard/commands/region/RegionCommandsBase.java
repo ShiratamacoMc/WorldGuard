@@ -44,6 +44,7 @@ import com.sk89q.worldedit.util.formatting.text.format.TextDecoration;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.config.WorldConfiguration;
 import com.sk89q.worldguard.internal.permission.RegionPermissionModel;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.Flag;
@@ -54,6 +55,7 @@ import com.sk89q.worldguard.protection.regions.GlobalProtectedRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.util.i18n.Messages;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery.QueryOption;
 import com.sk89q.worldguard.protection.util.WorldEditRegionConverter;
@@ -99,7 +101,7 @@ class RegionCommandsBase {
                     World override = WorldEdit.getInstance().getSessionManager().get(sender).getWorldOverride();
                     if (override != null) {
                         if (sender instanceof LocalPlayer && !override.equals(((LocalPlayer) sender).getWorld())) {
-                            sender.printDebug(TextComponent.of("Using //world override for region command: " + override.getName()));
+                            sender.printDebug(TextComponent.of(Messages.get("command-region.world-override", "world", override.getName())));
                         }
                         return override;
                     }
@@ -109,7 +111,7 @@ class RegionCommandsBase {
             if (sender instanceof LocalPlayer) {
                 return ((LocalPlayer) sender).getWorld();
             } else {
-                throw new CommandException("Please specify " + "the world with -" + flag + " world_name.");
+                throw new CommandException(Messages.get("command-region.specify-world", "flag", flag));
             }
         }
     }
@@ -124,13 +126,11 @@ class RegionCommandsBase {
      */
     protected static String checkRegionId(String id, boolean allowGlobal) throws CommandException {
         if (!ProtectedRegion.isValidId(id)) {
-            throw new CommandException(
-                    "The region name of '" + id + "' contains characters that are not allowed.");
+            throw new CommandException(Messages.get("command-region.invalid-id", "region", id));
         }
 
         if (!allowGlobal && id.equalsIgnoreCase("__global__")) { // Sorry, no global
-            throw new CommandException(
-                    "Sorry, you can't use __global__ here.");
+            throw new CommandException(Messages.get("command-region.global-not-allowed"));
         }
 
         return id;
@@ -162,8 +162,7 @@ class RegionCommandsBase {
                 return region;
             }
 
-            throw new CommandException(
-                    "No region could be found with the name of '" + id + "'.");
+            throw new CommandException(Messages.get("command-region.not-found", "region", id));
         }
 
         return region;
@@ -206,18 +205,15 @@ class RegionCommandsBase {
         if (set.size() == 0) {
             if (allowGlobal) {
                 ProtectedRegion global = checkExistingRegion(regionManager, "__global__", true);
-                player.printDebug("You're not standing in any " +
-                        "regions. Using the global region for this world instead.");
+                player.printDebug(Messages.get("command-region.using-global-region"));
                 return global;
             }
-            throw new CommandException(
-                    "You're not standing in a region. " +
-                            "Specify an ID if you want to select a specific region.");
+            throw new CommandException(Messages.get("command-region.not-standing-in-region"));
         } else if (set.size() > 1) {
             boolean first = true;
 
             final TextComponent.Builder builder = TextComponent.builder("");
-            builder.append(TextComponent.of("Current regions: ", TextColor.GOLD));
+            builder.append(TextComponent.of(Messages.get("command-region.current-regions"), TextColor.GOLD));
             for (ProtectedRegion region : set) {
                 if (!first) {
                     builder.append(TextComponent.of(", "));
@@ -225,13 +221,13 @@ class RegionCommandsBase {
                 first = false;
                 TextComponent regionComp = TextComponent.of(region.getId(), TextColor.AQUA);
                 if (rgCmd != null && rgCmd.contains("%id%")) {
-                    regionComp = regionComp.hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of("Click to pick this region")))
+                    regionComp = regionComp.hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of(Messages.get("command-region.click-to-pick"))))
                             .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND, rgCmd.replace("%id%", region.getId())));
                 }
                 builder.append(regionComp);
             }
             player.print(builder.build());
-            throw new CommandException("You're standing in several regions (please pick one).");
+            throw new CommandException(Messages.get("command-region.multiple-regions"));
         }
 
         return set.iterator().next();
@@ -253,9 +249,7 @@ class RegionCommandsBase {
             }
             return localSession.getRegionSelector(localSession.getSelectionWorld()).getRegion();
         } catch (IncompleteRegionException e) {
-            throw new CommandException("Please select an area first. " +
-                    "Use WorldEdit to make a selection! " +
-                    "(see: https://worldedit.enginehub.org/en/latest/usage/regions/selections/).");
+            throw new CommandException(Messages.get("command-region.selection-required"));
         }
     }
 
@@ -268,8 +262,9 @@ class RegionCommandsBase {
      */
     protected static void checkRegionDoesNotExist(RegionManager manager, String id, boolean mayRedefine) throws CommandException {
         if (manager.hasRegion(id)) {
-            throw new CommandException("A region with that name already exists. Please choose another name." +
-                    (mayRedefine ? " To change the shape, use /region redefine " + id + "." : ""));
+            throw new CommandException(Messages.get(mayRedefine
+                    ? "command-region.already-exists-redefine"
+                    : "command-region.already-exists", "region", id));
         }
     }
 
@@ -280,16 +275,17 @@ class RegionCommandsBase {
      * @throws CommandException thrown if the manager is null
      */
     protected static RegionManager checkRegionManager(World world) throws CommandException {
-        if (!WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world).useRegions) {
-            throw new CommandException("Region support is disabled in the target world. " +
-                    "It can be enabled per-world in WorldGuard's configuration files. " +
-                    "However, you may need to restart your server afterwards.");
+        WorldConfiguration config = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world);
+        if (config == null) {
+            throw new CommandException(Messages.get("command.world-not-enabled"));
+        }
+        if (!config.useRegions) {
+            throw new CommandException(Messages.get("error.region-support-disabled"));
         }
 
         RegionManager manager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(world);
         if (manager == null) {
-            throw new CommandException("Region data failed to load for this world. " +
-                    "Please ask a server administrator to read the logs to identify the reason.");
+            throw new CommandException(Messages.get("error.region-data-failed"));
         }
         return manager;
     }
@@ -316,7 +312,7 @@ class RegionCommandsBase {
             BlockVector3 max = selection.getMaximumPoint();
             return new ProtectedCuboidRegion(id, min, max);
         } else {
-            throw new CommandException("Sorry, you can only use cuboids and polygons for WorldGuard regions.");
+            throw new CommandException(Messages.get("command-region.unsupported-selection-type"));
         }
     }
 
@@ -333,8 +329,7 @@ class RegionCommandsBase {
             String failingList = Joiner.on(", ").join(failures.stream()
                     .map(regionManager -> "'" + regionManager.getName() + "'").collect(Collectors.toList()));
 
-            sender.print(TextComponent.of("(Warning: The background saving of region data is failing for these worlds: " + failingList + ". " +
-                    "Your changes are getting lost. See the server log for more information.)", TextColor.GOLD));
+            sender.print(TextComponent.of(Messages.get("command-region.save-failures-warning", "worlds", failingList), TextColor.GOLD));
         }
     }
 
@@ -350,7 +345,7 @@ class RegionCommandsBase {
         }
         int height = region.getMaximumPoint().y() - region.getMinimumPoint().y();
         if (height <= 2) {
-            sender.printDebug("(Warning: The height of the region was " + (height + 1) + " block(s).)");
+            sender.printDebug(Messages.get("command-region.height-warning", "height", height + 1));
         }
     }
 
@@ -363,9 +358,9 @@ class RegionCommandsBase {
      */
     protected static void informNewUser(Actor sender, RegionManager manager, ProtectedRegion region) {
         if (manager.size() <= 2) {
-            sender.print(SubtleFormat.wrap("(This region is NOW PROTECTED from modification from others. Don't want that? Use ")
+            sender.print(SubtleFormat.wrap(Messages.get("command-region.new-protection-prefix"))
                             .append(TextComponent.of("/rg flag " + region.getId() + " passthrough allow", TextColor.AQUA))
-                            .append(TextComponent.of(")", TextColor.GRAY)));
+                            .append(TextComponent.of(Messages.get("command-region.new-protection-suffix"), TextColor.GRAY)));
         }
     }
 
@@ -380,9 +375,8 @@ class RegionCommandsBase {
         ProtectedRegion spawn = WorldGuard.getInstance().getPlatform().getSpawnProtection(world);
         if (spawn != null) {
             if (!spawn.getIntersectingRegions(ImmutableList.of(region)).isEmpty()) {
-                sender.print(ErrorFormat.wrap("Warning!")
-                        .append(TextComponent.of(" This region overlaps vanilla's spawn protection. WorldGuard cannot " +
-                                "override this, and only server operators will be able to interact with this area.", TextColor.WHITE)));
+            sender.print(ErrorFormat.wrap(Messages.get("command-region.spawn-overlap-title"))
+                    .append(TextComponent.of(Messages.get("command-region.spawn-overlap-message"), TextColor.WHITE)));
                 return true;
             }
         }
@@ -404,10 +398,10 @@ class RegionCommandsBase {
             selector.setWorld(world);
             session.setRegionSelector(world, selector);
             selector.explainRegionAdjust(actor, session);
-            actor.print("Region selected as " + region.getType().getName());
+            actor.print(Messages.get("command-region.selection-set", "type", region.getType().getName()));
         } else {
-            throw new CommandException("Can't select that region! " +
-                    "The region type '" + region.getType().getName() + "' can't be selected.");
+            throw new CommandException(Messages.get("command-region.selection-type-unavailable",
+                    "type", region.getType().getName()));
         }
     }
 

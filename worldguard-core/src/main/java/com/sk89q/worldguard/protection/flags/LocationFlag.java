@@ -24,6 +24,7 @@ import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.config.WorldConfiguration;
 import com.sk89q.worldguard.internal.permission.RegionPermissionModel;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -70,7 +71,8 @@ public class LocationFlag extends Flag<Location> {
             Object obj = context.get("region");
             if (obj instanceof ProtectedRegion) {
                 ProtectedRegion rg = (ProtectedRegion) obj;
-                if (WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(player.getWorld()).boundedLocationFlags) {
+                WorldConfiguration config = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(player.getWorld());
+                if (config != null && config.boundedLocationFlags) {
                     if (!rg.contains(loc.toVector().toBlockPoint())) {
                         if (new RegionPermissionModel(player).mayOverrideLocationFlagBounds(rg)) {
                             player.printDebug("WARNING: Flag location is outside of region.");

@@ -45,6 +45,13 @@ public class ConfigReport extends DataReport {
             WorldConfiguration config = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world);
 
             DataReport report = new DataReport("World: " + world.getName());
+            if (config == null) {
+                report.append("Configuration", "<Disabled by world whitelist>");
+                report.append("Blacklist", "<Disabled>");
+                report.append("Regions", "<Disabled>");
+                append(report.getTitle(), report);
+                continue;
+            }
             report.append("Configuration", new HierarchyObjectReport("Configuration", config));
 
             Blacklist blacklist = config.getBlacklist();

@@ -44,7 +44,7 @@ public class WorldGuardWorldListener extends AbstractListener {
     public void onChunkLoad(ChunkLoadEvent event) {
         ConfigurationManager cfg = getConfig();
 
-        if (cfg.activityHaltToggle) {
+        if (cfg.activityHaltToggle && isWorldWhitelisted(event.getWorld())) {
             int removed = 0;
 
             for (Entity entity : event.getChunk().getEntities()) {

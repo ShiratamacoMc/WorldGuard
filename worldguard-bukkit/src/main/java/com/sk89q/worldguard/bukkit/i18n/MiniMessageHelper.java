@@ -91,6 +91,16 @@ public class MiniMessageHelper {
         Component component = parse(message, placeholders);
         audiences.sender(sender).sendMessage(component);
     }
+
+    /**
+     * Sends a pre-built Adventure component to a command sender.
+     *
+     * @param sender recipient
+     * @param component component to send
+     */
+    public void sendComponent(CommandSender sender, Component component) {
+        audiences.sender(sender).sendMessage(component);
+    }
     
     /**
      * Sends a MiniMessage formatted action bar to a Player.

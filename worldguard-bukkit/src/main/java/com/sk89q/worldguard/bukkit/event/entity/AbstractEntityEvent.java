@@ -22,6 +22,7 @@ package com.sk89q.worldguard.bukkit.event.entity;
 import com.google.common.base.Predicate;
 import com.sk89q.worldguard.bukkit.cause.Cause;
 import com.sk89q.worldguard.bukkit.event.DelegateEvent;
+import com.sk89q.worldguard.bukkit.event.WorldAwareEvent;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -35,7 +36,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * This event is an internal event. We do not recommend handling or throwing
  * this event or its subclasses as the interface is highly subject to change.
  */
-abstract class AbstractEntityEvent extends DelegateEvent {
+abstract class AbstractEntityEvent extends DelegateEvent implements WorldAwareEvent {
 
     private final Location target;
     @Nullable

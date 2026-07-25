@@ -136,6 +136,9 @@ public class Session {
      * @param player The player
      */
     public void uninitialize(LocalPlayer player) {
+        if (!initialized) {
+            return;
+        }
         RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
         Location location = player.getLocation();
         ApplicableRegionSet set = query.getApplicableRegions(location);
@@ -143,6 +146,7 @@ public class Session {
         for (Handler handler : handlers.values()) {
             handler.uninitialize(player, location, set);
         }
+        initialized = false;
     }
 
     /**

@@ -21,6 +21,7 @@ package com.sk89q.worldguard.bukkit.event.inventory;
 
 import com.sk89q.worldguard.bukkit.cause.Cause;
 import com.sk89q.worldguard.bukkit.event.DelegateEvent;
+import com.sk89q.worldguard.bukkit.event.WorldAwareEvent;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -36,7 +37,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * <p>Thrown when an item is used.</p>
  */
-public class UseItemEvent extends DelegateEvent {
+public class UseItemEvent extends DelegateEvent implements WorldAwareEvent {
 
     private static final HandlerList handlers = new HandlerList();
     private final World world;

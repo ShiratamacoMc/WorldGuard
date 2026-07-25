@@ -28,6 +28,7 @@ import com.sk89q.worldguard.session.handler.GodMode;
 import com.sk89q.worldguard.session.handler.WaterBreathing;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,7 +64,18 @@ public class PlayerModesListener extends AbstractListener {
 
     @EventHandler
     public void onProcessPlayer(ProcessPlayerEvent event) {
-        Player player = event.getPlayer();
+        applyAutomaticModes(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
+        applyAutomaticModes(event.getPlayer());
+    }
+
+    private void applyAutomaticModes(Player player) {
+        if (!isWorldWhitelisted(player.getWorld())) {
+            return;
+        }
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
         Session session = WorldGuard.getInstance().getPlatform().getSessionManager().get(localPlayer);
 

@@ -61,6 +61,10 @@ public class PlayerMoveListener extends AbstractListener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
+        if (!isWorldWhitelisted(event.getRespawnLocation().getWorld())) {
+            clearSession(event.getPlayer());
+            return;
+        }
         LocalPlayer player = getPlugin().wrapPlayer(event.getPlayer());
 
         Session session = WorldGuard.getInstance().getPlatform().getSessionManager().get(player);
@@ -70,7 +74,7 @@ public class PlayerMoveListener extends AbstractListener {
     @EventHandler
     public void onVehicleEnter(VehicleEnterEvent event) {
         Entity entity = event.getEntered();
-        if (entity instanceof Player) {
+        if (entity instanceof Player && isWorldWhitelisted(event.getVehicle().getWorld())) {
             LocalPlayer player = getPlugin().wrapPlayer((Player) entity);
             Session session = WorldGuard.getInstance().getPlatform().getSessionManager().get(player);
             if (null != session.testMoveTo(player, BukkitAdapter.adapt(event.getVehicle().getLocation()), MoveType.EMBARK, true)) {
@@ -87,6 +91,12 @@ public class PlayerMoveListener extends AbstractListener {
         if (from.getBlockX() == to.getBlockX()
                 && from.getBlockY() == to.getBlockY()
                 && from.getBlockZ() == to.getBlockZ()) {
+            return;
+        }
+        if (!isWorldWhitelisted(to.getWorld())) {
+            if (isWorldWhitelisted(from.getWorld())) {
+                clearSession(event.getPlayer());
+            }
             return;
         }
 
@@ -155,6 +165,10 @@ public class PlayerMoveListener extends AbstractListener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         final Player player = event.getPlayer();
+        if (!isWorldWhitelisted(player.getWorld())) {
+            clearSession(player);
+            return;
+        }
         LocalPlayer localPlayer = getPlugin().wrapPlayer(player);
 
         Session session = WorldGuard.getInstance().getPlatform().getSessionManager().get(localPlayer);
@@ -187,10 +201,18 @@ public class PlayerMoveListener extends AbstractListener {
         }
     }
 
+    private void clearSession(Player player) {
+        LocalPlayer localPlayer = getPlugin().wrapPlayer(player);
+        Session session = WorldGuard.getInstance().getPlatform().getSessionManager().getIfPresent(localPlayer);
+        if (session != null) {
+            session.uninitialize(localPlayer);
+        }
+    }
+
     @EventHandler
     public void onEntityMount(EntityMountEvent event) {
         Entity entity = event.getEntity();
-        if (entity instanceof Player) {
+        if (entity instanceof Player && isWorldWhitelisted(event.getMount().getWorld())) {
             LocalPlayer player = getPlugin().wrapPlayer((Player) entity);
             Session session = WorldGuard.getInstance().getPlatform().getSessionManager().get(player);
             if (null != session.testMoveTo(player, BukkitAdapter.adapt(event.getMount().getLocation()), MoveType.EMBARK, true)) {

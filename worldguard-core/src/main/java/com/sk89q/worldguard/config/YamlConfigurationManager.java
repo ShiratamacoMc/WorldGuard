@@ -74,7 +74,7 @@ public abstract class YamlConfigurationManager extends ConfigurationManager {
         // Load world whitelist configuration
         worldWhitelistEnabled = config.getBoolean("world-whitelist.enabled", false);
         worldWhitelist = config.getStringList("world-whitelist.worlds", java.util.Arrays.asList("world", "world_nether", "world_the_end"));
-        worldWhitelistDenyMessage = config.getString("world-whitelist.deny-message", "<red>此世界不在WorldGuard保护白名单中。</red>");
+        worldWhitelistDenyMessage = config.getString("world-whitelist.deny-message");
 
         hostKeys = new HashMap<>();
         Object hostKeysRaw = config.getProperty("host-keys");

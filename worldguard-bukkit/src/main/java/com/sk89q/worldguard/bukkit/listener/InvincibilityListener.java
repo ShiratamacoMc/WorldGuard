@@ -60,6 +60,7 @@ public class InvincibilityListener extends AbstractListener {
         Entity victim = event.getEntity();
         if (!(victim instanceof Player player)) return;
         if (Entities.isNPC(player)) return;
+        if (!isWorldWhitelisted(victim.getWorld())) return;
 
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
 
@@ -75,10 +76,12 @@ public class InvincibilityListener extends AbstractListener {
                     attacker = (Entity) ((Projectile) attacker).getShooter();
                 }
 
-                if (getWorldConfig(player.getWorld()).regionInvinciblityRemovesMobs
+                var config = getWorldConfig(player.getWorld());
+                if (config != null && config.regionInvinciblityRemovesMobs
                         && attacker instanceof LivingEntity && !(attacker instanceof Player)
                         && !(attacker instanceof Tameable && ((Tameable) attacker).isTamed())) {
                     attacker.remove();
+                }
                 }
             }
         }
@@ -89,6 +92,7 @@ public class InvincibilityListener extends AbstractListener {
         Entity entity = event.getEntity();
         if (!(entity instanceof Player player)) return;
         if (Entities.isNPC(player)) return;
+        if (!isWorldWhitelisted(entity.getWorld())) return;
 
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
 
@@ -101,6 +105,7 @@ public class InvincibilityListener extends AbstractListener {
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (Entities.isNPC(player)) return;
+        if (!isWorldWhitelisted(event.getEntity().getWorld())) return;
 
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
 

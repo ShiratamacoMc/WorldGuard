@@ -39,6 +39,7 @@ import com.sk89q.worldguard.protection.association.RegionAssociable;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.util.i18n.Messages;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -133,14 +134,14 @@ public class RegionLister implements Callable<Integer> {
                         profile = WorldGuard.getInstance().getProfileService().findByName(name);
                     } catch (IOException e) {
                         log.log(Level.WARNING, "Failed UUID lookup of '" + name + "'", e);
-                        throw new CommandException("Failed to lookup the UUID of '" + name + "'");
+                        throw new CommandException(Messages.get("command-region.uuid-lookup-failed", "player", name));
                     } catch (InterruptedException e) {
                         log.log(Level.WARNING, "Failed UUID lookup of '" + name + "'", e);
-                        throw new CommandException("The lookup the UUID of '" + name + "' was interrupted");
+                        throw new CommandException(Messages.get("command-region.uuid-lookup-interrupted", "player", name));
                     }
 
                     if (profile == null) {
-                        throw new CommandException("A user by the name of '" + name + "' does not seem to exist.");
+                        throw new CommandException(Messages.get("command-region.player-not-found", "player", name));
                     }
 
                     uniqueId = profile.getUniqueId();
@@ -194,7 +195,9 @@ public class RegionLister implements Callable<Integer> {
         }
 
         RegionPermissionModel perms = sender.isPlayer() ? new RegionPermissionModel(sender) : null;
-        String title = ownerMatcher == null ? "Regions" : "Regions for " + ownerMatcher.getName();
+        String title = ownerMatcher == null
+                ? Messages.get("command-region.list-title")
+                : Messages.get("command-region.list-title-player", "player", ownerMatcher.getName());
         String cmd = "/rg list -w \"" + world + "\""
                 + (playerName != null ? " -p " + playerName : "")
                 + (nameOnly ? " -n" : "")
@@ -274,28 +277,28 @@ public class RegionLister implements Callable<Integer> {
             final TextComponent.Builder builder = TextComponent.builder(number + 1 + ".").color(TextColor.LIGHT_PURPLE);
             if (entry.isOwner()) {
                 builder.append(TextComponent.space()).append(TextComponent.of("+", TextColor.DARK_AQUA)
-                        .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of("Region Owner", TextColor.GOLD))));
+                        .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of(Messages.get("command-region.list-owner"), TextColor.GOLD))));
             } else if (entry.isMember()) {
                 builder.append(TextComponent.space()).append(TextComponent.of("-", TextColor.AQUA)
-                        .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of("Region Member", TextColor.GOLD))));
+                        .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of(Messages.get("command-region.list-member"), TextColor.GOLD))));
             }
             builder.append(TextComponent.space()).append(TextComponent.of(entry.getRegion().getId(), TextColor.GOLD));
             if (perms != null && perms.mayLookup(entry.region)) {
-                builder.append(TextComponent.space().append(TextComponent.of("[Info]", TextColor.GRAY)
-                        .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of("Click for info")))
+                builder.append(TextComponent.space().append(TextComponent.of(Messages.get("command-region.list-info-button"), TextColor.GRAY)
+                        .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of(Messages.get("command-region.list-click-info"))))
                         .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
                                 "/rg info -w \"" + world + "\" " + entry.region.getId()))));
             }
             final Location teleFlag = FlagValueCalculator.getEffectiveFlagOf(entry.region, Flags.TELE_LOC, perms != null && perms.getSender() instanceof RegionAssociable ? (RegionAssociable) perms.getSender() : null);
             if (perms != null && teleFlag != null && perms.mayTeleportTo(entry.region)) {
-                builder.append(TextComponent.space().append(TextComponent.of("[TP]", TextColor.GRAY)
-                        .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of("Click to teleport")))
+                builder.append(TextComponent.space().append(TextComponent.of(Messages.get("command-region.list-teleport-button"), TextColor.GRAY)
+                        .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of(Messages.get("command-region.list-click-teleport"))))
                         .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
                                 "/rg tp -w \"" + world + "\" " + entry.region.getId()))));
             } else if (perms != null && perms.mayTeleportToCenter(entry.getRegion()) && entry.getRegion().isPhysicalArea()) {
-                builder.append(TextComponent.space().append(TextComponent.of("[TP-Center]", TextColor.GRAY)
+                builder.append(TextComponent.space().append(TextComponent.of(Messages.get("command-region.list-center-teleport-button"), TextColor.GRAY)
                         .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT,
-                                TextComponent.of("Click to teleport to the center")))
+                                TextComponent.of(Messages.get("command-region.list-click-teleport-center"))))
                         .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
                                 "/rg tp -c -w \"" + world + "\" " + entry.region.getId()))));
             }

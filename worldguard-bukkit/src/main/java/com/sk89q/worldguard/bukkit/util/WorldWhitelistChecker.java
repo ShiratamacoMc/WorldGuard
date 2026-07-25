@@ -76,7 +76,10 @@ public class WorldWhitelistChecker {
      * @param player The player to send the message to
      */
     public void sendNotWhitelistedMessage(Player player) {
-        String message = plugin.getMessageManager().getMessage("protection.world-not-whitelisted");
+        String message = plugin.getConfigManager().getWorldWhitelistDenyMessage();
+        if (message == null || message.isEmpty()) {
+            message = plugin.getMessageManager().getMessage("protection.world-not-whitelisted");
+        }
         plugin.getMiniMessageHelper().sendMessage(player, message);
     }
 

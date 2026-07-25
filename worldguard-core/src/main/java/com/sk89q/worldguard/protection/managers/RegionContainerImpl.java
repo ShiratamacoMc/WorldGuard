@@ -156,7 +156,7 @@ public class RegionContainerImpl {
             RegionManager manager = mapping.get(normal);
             if (manager != null) {
                 try {
-                    manager.save();
+                    manager.saveChanges();
                 } catch (StorageException e) {
                     log.log(Level.WARNING, "Failed to save the region data for '" + name + "'", e);
                 }

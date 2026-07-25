@@ -125,7 +125,7 @@ public abstract class ConfigurationManager {
      * Get the configuration for a world.
      *
      * @param world The world to get the configuration for
-     * @return {@code world}'s configuration
+     * @return {@code world}'s configuration, or {@code null} when the world is not managed
      */
     public abstract WorldConfiguration get(World world);
 
@@ -190,11 +190,12 @@ public abstract class ConfigurationManager {
     }
 
     /**
-     * Get the deny message for non-whitelisted worlds.
+     * Gets the optional administrator-defined deny message for non-whitelisted worlds.
+     * When absent, the platform's active language supplies the message.
      *
-     * @return the deny message
+     * @return the configured override, or {@code null}
      */
     public String getWorldWhitelistDenyMessage() {
-        return worldWhitelistDenyMessage != null ? worldWhitelistDenyMessage : "This world is not in the WorldGuard whitelist.";
+        return worldWhitelistDenyMessage;
     }
 }

@@ -21,6 +21,7 @@ package com.sk89q.worldguard.bukkit;
 
 import com.google.common.collect.ImmutableList;
 import com.sk89q.bukkit.util.CommandsManagerRegistration;
+import com.sk89q.bukkit.util.CommandInspector;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
 import com.sk89q.minecraft.util.commands.CommandUsageException;
@@ -65,6 +66,8 @@ import com.sk89q.worldguard.bukkit.session.BukkitSessionManager;
 import com.sk89q.worldguard.bukkit.util.ClassSourceValidator;
 import com.sk89q.worldguard.bukkit.util.Entities;
 import com.sk89q.worldguard.bukkit.util.Events;
+import com.sk89q.worldguard.bukkit.util.TabCompletingCommandsManagerRegistration;
+import com.sk89q.worldguard.bukkit.util.WorldGuardCommandSupport;
 import com.sk89q.worldguard.bukkit.i18n.I18nConfig;
 import com.sk89q.worldguard.bukkit.i18n.MessageManager;
 import com.sk89q.worldguard.bukkit.i18n.MiniMessageHelper;
@@ -91,6 +94,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -109,7 +113,7 @@ import java.util.logging.Logger;
 /**
  * The main class for WorldGuard as a Bukkit plugin.
  */
-public class WorldGuardPlugin extends JavaPlugin {
+public class WorldGuardPlugin extends JavaPlugin implements CommandInspector, TabCompleter {
 
     private static final org.apache.logging.log4j.Logger LOGGER = LogManagerCompat.getLogger();
     private static WorldGuardPlugin inst;
@@ -121,6 +125,7 @@ public class WorldGuardPlugin extends JavaPlugin {
     private MessageManager messageManager;
     private MiniMessageHelper miniMessageHelper;
     private com.sk89q.worldguard.bukkit.util.WorldWhitelistChecker worldWhitelistChecker;
+    private WorldGuardCommandSupport commandSupport;
 
     private static final int BSTATS_PLUGIN_ID = 3283;
 
@@ -169,6 +174,7 @@ public class WorldGuardPlugin extends JavaPlugin {
         i18nConfig.load();
         
         messageManager = new MessageManager(this);
+        messageManager.setFallbackLanguage(i18nConfig.getFallbackLanguage());
         messageManager.loadLanguages();
         messageManager.setLanguage(i18nConfig.getLanguage());
         
@@ -201,8 +207,9 @@ public class WorldGuardPlugin extends JavaPlugin {
         commands.setInjector(injector);
 
         // Register command classes
+        commandSupport = new WorldGuardCommandSupport(this);
         @SuppressWarnings("deprecation")
-        final CommandsManagerRegistration reg = new CommandsManagerRegistration(this, commands);
+        final CommandsManagerRegistration reg = new TabCompletingCommandsManagerRegistration(this, commands, this);
         reg.register(ToggleCommands.class);
         reg.register(ProtectionCommands.class);
 
@@ -265,16 +272,18 @@ public class WorldGuardPlugin extends JavaPlugin {
                 player.getScheduler().run(this, new Consumer() {
                     @Override
                     public void accept(Object ignored) {
-                        ProcessPlayerEvent event = new ProcessPlayerEvent(player);
-                        Events.fire(event);
+                        if (getConfigManager().isWorldWhitelisted(player.getWorld().getName())) {
+                            Events.fire(new ProcessPlayerEvent(player));
+                        }
                     }
                 }, null);
             }
         } else {
             Bukkit.getScheduler().runTask(this, () -> {
                 for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-                    ProcessPlayerEvent event = new ProcessPlayerEvent(player);
-                    Events.fire(event);
+                    if (getConfigManager().isWorldWhitelisted(player.getWorld().getName())) {
+                        Events.fire(new ProcessPlayerEvent(player));
+                    }
                 }
             });
         }
@@ -348,6 +357,9 @@ public class WorldGuardPlugin extends JavaPlugin {
     @Override
     @SuppressWarnings("deprecation")
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (commandSupport != null && commandSupport.handleHelp(sender, label, args)) {
+            return true;
+        }
         try {
             Actor actor = wrapCommandSender(sender);
             try {
@@ -372,17 +384,52 @@ public class WorldGuardPlugin extends JavaPlugin {
         } catch (com.sk89q.minecraft.util.commands.MissingNestedCommandException e) {
             String message = messageManager.getMessage("error.invalid-args") + " " + e.getUsage();
             miniMessageHelper.sendMessage(sender, message);
+            if (commandSupport != null && commandSupport.isHelpCommandLabel(label)) {
+                commandSupport.sendHelp(sender, label, 1);
+            }
         } catch (com.sk89q.minecraft.util.commands.CommandUsageException e) {
-            miniMessageHelper.sendMessage(sender, "<red>" + e.getMessage() + "</red>");
-            miniMessageHelper.sendMessage(sender, "<red>" + e.getUsage() + "</red>");
+            miniMessageHelper.sendMessage(sender, messageManager.getMessage("error.command-message",
+                    "message", e.getMessage()));
+            miniMessageHelper.sendMessage(sender, messageManager.getMessage("error.command-usage",
+                    "usage", e.getUsage()));
         } catch (com.sk89q.minecraft.util.commands.WrappedCommandException e) {
             miniMessageHelper.sendMessage(sender, messageManager.getMessage("general.error", 
                 "error", e.getCause().getMessage()));
         } catch (com.sk89q.minecraft.util.commands.CommandException e) {
-            miniMessageHelper.sendMessage(sender, "<red>" + e.getMessage() + "</red>");
+            miniMessageHelper.sendMessage(sender, messageManager.getMessage("error.command-message",
+                    "message", e.getMessage()));
         }
 
         return true;
+    }
+
+    @Override
+    public java.util.List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return commandSupport == null ? java.util.Collections.emptyList() : commandSupport.complete(sender, alias, args);
+    }
+
+    @Override
+    public String getShortText(Command command) {
+        return command.getDescription();
+    }
+
+    @Override
+    public String getFullText(Command command) {
+        return command.getUsage() + " - " + command.getDescription();
+    }
+
+    @Override
+    public boolean testPermission(CommandSender sender, Command command) {
+        String permission = command.getPermission();
+        if (permission == null || permission.isEmpty()) {
+            return true;
+        }
+        for (String node : permission.split(";")) {
+            if (hasPermission(sender, node)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -470,15 +517,15 @@ public class WorldGuardPlugin extends JavaPlugin {
     public WorldEditPlugin getWorldEdit() throws com.sk89q.minecraft.util.commands.CommandException {
         Plugin worldEdit = getServer().getPluginManager().getPlugin("WorldEdit");
         if (worldEdit == null) {
-            throw new com.sk89q.minecraft.util.commands.CommandException("WorldEdit does not appear to be installed.");
+            throw new com.sk89q.minecraft.util.commands.CommandException(messageManager.getMessage("worldedit.not-installed"));
         } else if (!worldEdit.isEnabled()) {
-            throw new com.sk89q.minecraft.util.commands.CommandException("WorldEdit does not appear to be enabled.");
+            throw new com.sk89q.minecraft.util.commands.CommandException(messageManager.getMessage("worldedit.not-enabled"));
         }
 
         if (worldEdit instanceof WorldEditPlugin) {
             return (WorldEditPlugin) worldEdit;
         } else {
-            throw new com.sk89q.minecraft.util.commands.CommandException("WorldEdit detection failed (report error).");
+            throw new com.sk89q.minecraft.util.commands.CommandException(messageManager.getMessage("worldedit.detection-failed"));
         }
     }
 

@@ -22,6 +22,7 @@ package com.sk89q.worldguard.bukkit.listener;
 import static com.sk89q.worldguard.bukkit.cause.Cause.create;
 
 import com.destroystokyo.paper.event.entity.EntityZapEvent;
+import com.sk89q.worldguard.bukkit.BukkitWorldConfiguration;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.bukkit.cause.Cause;
 import com.sk89q.worldguard.bukkit.event.DelegateEvent;
@@ -766,7 +767,8 @@ public class EventAbstractionListener extends AbstractListener {
             case DISPENSE_EGG:
             case EGG:
             case SPAWNER_EGG:
-                if (getWorldConfig(event.getEntity().getWorld()).strictEntitySpawn) {
+                WorldConfiguration config = getWorldConfig(event.getEntity().getWorld());
+                if (config != null && config.strictEntitySpawn) {
                     Events.fireToCancel(event, new SpawnEntityEvent(event, Cause.unknown(), event.getEntity()));
                 }
                 break;
@@ -1030,11 +1032,12 @@ public class EventAbstractionListener extends AbstractListener {
         InventoryHolder causeHolder = PaperInterop.getHolder(event.getInitiator(), false);
 
         WorldConfiguration wcfg = null;
-        if (causeHolder instanceof Hopper
-                && (wcfg = getWorldConfig((((Hopper) causeHolder).getWorld()))).ignoreHopperMoveEvents) {
-            return;
-        } else if (causeHolder instanceof HopperMinecart
-                && (wcfg = getWorldConfig((((HopperMinecart) causeHolder).getWorld()))).ignoreHopperMoveEvents) {
+        if (causeHolder instanceof Hopper) {
+            wcfg = getWorldConfig(((Hopper) causeHolder).getWorld());
+        } else if (causeHolder instanceof HopperMinecart) {
+            wcfg = getWorldConfig(((HopperMinecart) causeHolder).getWorld());
+        }
+        if (wcfg != null && wcfg.ignoreHopperMoveEvents) {
             return;
         }
 
@@ -1312,15 +1315,18 @@ public class EventAbstractionListener extends AbstractListener {
     }
 
     private static boolean hasInteractBypass(Block block) {
-        return getWorldConfig(block.getWorld()).allowAllInteract.test(block);
+        BukkitWorldConfiguration config = getWorldConfig(block.getWorld());
+        return config != null && config.allowAllInteract.test(block);
     }
 
     private static boolean hasInteractBypass(World world, Material material) {
-        return getWorldConfig(world).allowAllInteract.test(material);
+        BukkitWorldConfiguration config = getWorldConfig(world);
+        return config != null && config.allowAllInteract.test(material);
     }
 
     private static boolean hasInteractBypass(World world, ItemStack item) {
-        return getWorldConfig(world).allowAllInteract.test(item);
+        BukkitWorldConfiguration config = getWorldConfig(world);
+        return config != null && config.allowAllInteract.test(item);
     }
 
     private static boolean isBlockModifiedOnClick(Block block, boolean rightClick) {

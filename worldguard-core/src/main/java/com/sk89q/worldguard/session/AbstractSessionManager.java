@@ -165,12 +165,7 @@ public abstract class AbstractSessionManager implements SessionManager {
     }
 
     private Session getIfPresentInternal(CacheKey cacheKey) {
-        @Nullable Session session = sessions.getIfPresent(cacheKey);
-        if (session != null) {
-            session.ensureInitialized(cacheKey.playerRef.get(), this::initializeSession);
-            return session;
-        }
-        return null;
+        return sessions.getIfPresent(cacheKey);
     }
 
     @Override

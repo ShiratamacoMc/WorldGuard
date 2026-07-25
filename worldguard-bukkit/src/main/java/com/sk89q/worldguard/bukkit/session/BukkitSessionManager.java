@@ -52,6 +52,9 @@ public class BukkitSessionManager extends AbstractSessionManager implements Runn
     public void resetAllStates() {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             Runnable task = () -> {
+                if (!isWorldManaged(player)) {
+                    return;
+                }
                 BukkitPlayer bukkitPlayer = new BukkitPlayer(WorldGuardPlugin.inst(), player);
                 Session session = getIfPresent(bukkitPlayer);
                 if (session != null) {
@@ -73,6 +76,9 @@ public class BukkitSessionManager extends AbstractSessionManager implements Runn
 
     @EventHandler
     public void onPlayerProcess(ProcessPlayerEvent event) {
+        if (!isWorldManaged(event.getPlayer())) {
+            return;
+        }
         // Pre-load a session
         LocalPlayer player = WorldGuardPlugin.inst().wrapPlayer(event.getPlayer());
         get(player).initialize(player);
@@ -83,6 +89,9 @@ public class BukkitSessionManager extends AbstractSessionManager implements Runn
     public void run() {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             Runnable task = () -> {
+                if (!isWorldManaged(player)) {
+                    return;
+                }
                 LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
                 get(localPlayer).tick(localPlayer);
             };
@@ -113,10 +122,17 @@ public class BukkitSessionManager extends AbstractSessionManager implements Runn
         return super.hasBypass(player, world);
     }
 
+    private boolean isWorldManaged(Player player) {
+        return WorldGuardPlugin.inst().getConfigManager().get(player.getWorld().getName()) != null;
+    }
+
     public void shutdown() {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
-            get(localPlayer).uninitialize(localPlayer);
+            Session session = getIfPresent(localPlayer);
+            if (session != null) {
+                session.uninitialize(localPlayer);
+            }
         }
     }
 }

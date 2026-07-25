@@ -20,6 +20,8 @@
 package com.sk89q.worldguard.bukkit.util;
 
 import com.sk89q.worldguard.bukkit.event.BulkEvent;
+import com.sk89q.worldguard.bukkit.event.WorldAwareEvent;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -46,7 +48,9 @@ public final class Events {
      */
     public static void fire(Event event) {
         checkNotNull(event);
-        Bukkit.getServer().getPluginManager().callEvent(event);
+        if (shouldFire(event)) {
+            Bukkit.getServer().getPluginManager().callEvent(event);
+        }
     }
 
     /**
@@ -57,8 +61,11 @@ public final class Events {
      * @return true if the event was cancelled
      */
     public static <T extends Event & Cancellable> boolean fireAndTestCancel(T eventToFire) {
-        Bukkit.getServer().getPluginManager().callEvent(eventToFire);
-        return eventToFire.isCancelled();
+        if (shouldFire(eventToFire)) {
+            Bukkit.getServer().getPluginManager().callEvent(eventToFire);
+            return eventToFire.isCancelled();
+        }
+        return false;
     }
 
     /**
@@ -71,6 +78,9 @@ public final class Events {
      * @return true if the event was fired and it caused the original event to be cancelled
      */
     public static <T extends Event & Cancellable> boolean fireToCancel(Cancellable original, T eventToFire) {
+        if (!shouldFire(eventToFire)) {
+            return false;
+        }
         Bukkit.getServer().getPluginManager().callEvent(eventToFire);
         if (eventToFire.isCancelled()) {
             original.setCancelled(true);
@@ -90,6 +100,9 @@ public final class Events {
      * @return true if the event was fired and it caused the original event to be cancelled
      */
     public static <T extends Event & Cancellable> boolean fireItemEventToCancel(PlayerInteractEvent original, T eventToFire) {
+        if (!shouldFire(eventToFire)) {
+            return false;
+        }
         Bukkit.getServer().getPluginManager().callEvent(eventToFire);
         if (eventToFire.isCancelled()) {
             original.setUseItemInHand(Result.DENY);
@@ -109,6 +122,9 @@ public final class Events {
      * @return true if the event was fired and it caused the original event to be cancelled
      */
     public static <T extends Event & Cancellable & BulkEvent> boolean fireBulkEventToCancel(Cancellable original, T eventToFire) {
+        if (!shouldFire(eventToFire)) {
+            return false;
+        }
         Bukkit.getServer().getPluginManager().callEvent(eventToFire);
         if (eventToFire.getExplicitResult() == Result.DENY) {
             original.setCancelled(true);
@@ -116,6 +132,11 @@ public final class Events {
         }
 
         return false;
+    }
+
+    private static boolean shouldFire(Event event) {
+        return !(event instanceof WorldAwareEvent worldAware)
+                || WorldGuardPlugin.inst().getConfigManager().isWorldWhitelisted(worldAware.getWorld().getName());
     }
 
     /**

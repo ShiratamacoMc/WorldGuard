@@ -28,20 +28,24 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.HashSet;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
  * Manages internationalized messages for WorldGuard.
  */
 public class MessageManager {
-    
+    private static final String BUNDLED_FALLBACK_LANGUAGE = "en_US";
+
     private final Plugin plugin;
     private final Map<String, YamlConfiguration> languages = new HashMap<>();
-    private String defaultLanguage = "en_US";
-    private String currentLanguage = "en_US";
+    private final Map<String, YamlConfiguration> bundledLanguages = new HashMap<>();
+    private final Set<String> missingKeys = new HashSet<>();
+    private String fallbackLanguage = BUNDLED_FALLBACK_LANGUAGE;
+    private String currentLanguage = BUNDLED_FALLBACK_LANGUAGE;
     
     public MessageManager(Plugin plugin) {
         this.plugin = plugin;
@@ -55,11 +59,14 @@ public class MessageManager {
         if (!langDir.exists()) {
             langDir.mkdirs();
         }
-        
+
         // Save default language files if they don't exist
         saveDefaultLanguageFile("en_US.yml");
         saveDefaultLanguageFile("zh_CN.yml");
-        
+
+        loadBundledLanguage(BUNDLED_FALLBACK_LANGUAGE);
+        loadBundledLanguage("zh_CN");
+
         // Load all language files
         File[] langFiles = langDir.listFiles((dir, name) -> name.endsWith(".yml"));
         if (langFiles != null) {
@@ -74,9 +81,6 @@ public class MessageManager {
                 }
             }
         }
-        
-        // Load default language from resources as fallback
-        loadDefaultFromResources();
     }
     
     private void saveDefaultLanguageFile(String fileName) {
@@ -93,16 +97,16 @@ public class MessageManager {
         }
     }
     
-    private void loadDefaultFromResources() {
-        try (InputStream in = plugin.getResource("languages/" + defaultLanguage + ".yml")) {
+    private void loadBundledLanguage(String language) {
+        try (InputStream in = plugin.getResource("languages/" + language + ".yml")) {
             if (in != null) {
                 YamlConfiguration config = YamlConfiguration.loadConfiguration(
                     new InputStreamReader(in, StandardCharsets.UTF_8)
                 );
-                languages.putIfAbsent(defaultLanguage, config);
+                bundledLanguages.put(language, config);
             }
         } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to load default language from resources", e);
+            plugin.getLogger().log(Level.SEVERE, "Failed to load bundled language " + language, e);
         }
     }
     
@@ -114,30 +118,43 @@ public class MessageManager {
      * @return The formatted message
      */
     public String getMessage(String key, Object... placeholders) {
-        YamlConfiguration langConfig = languages.get(currentLanguage);
-        
-        // Fall back to default language if current language doesn't have the key
-        if (langConfig == null || !langConfig.contains(key)) {
-            langConfig = languages.get(defaultLanguage);
+        String message = findMessage(currentLanguage, key);
+        if (message == null) {
+            message = findMessage(fallbackLanguage, key);
         }
-        
-        // Return key if message not found
-        if (langConfig == null || !langConfig.contains(key)) {
-            plugin.getLogger().warning("Missing translation key: " + key);
+        if (message == null) {
+            message = findBundledMessage(BUNDLED_FALLBACK_LANGUAGE, key);
+        }
+        if (message == null) {
+            if (missingKeys.add(key)) {
+                plugin.getLogger().warning("Missing translation key: " + key);
+            }
             return key;
         }
-        
-        String message = langConfig.getString(key, key);
-        
-        // Replace placeholders
-        if (placeholders.length > 0) {
-            for (int i = 0; i < placeholders.length - 1; i += 2) {
-                String placeholder = placeholders[i].toString();
-                String value = placeholders[i + 1].toString();
-                message = message.replace("{" + placeholder + "}", value);
-            }
+
+        return replacePlaceholders(message, placeholders);
+    }
+
+    private String findMessage(String language, String key) {
+        String message = findIn(languages.get(language), key);
+        return message != null ? message : findBundledMessage(language, key);
+    }
+
+    private String findBundledMessage(String language, String key) {
+        return findIn(bundledLanguages.get(language), key);
+    }
+
+    private String findIn(YamlConfiguration language, String key) {
+        return language != null && language.isString(key) ? language.getString(key) : null;
+    }
+
+    private String replacePlaceholders(String message, Object... placeholders) {
+        for (int i = 0; i + 1 < placeholders.length; i += 2) {
+            String placeholder = String.valueOf(placeholders[i]);
+            String value = String.valueOf(placeholders[i + 1]);
+            message = message.replace("{" + placeholder + "}", value)
+                    .replace("<" + placeholder + ">", value);
         }
-        
         return message;
     }
     
@@ -157,12 +174,35 @@ public class MessageManager {
      * @param language The language code (e.g., "en_US", "zh_CN")
      */
     public void setLanguage(String language) {
-        if (languages.containsKey(language)) {
-            this.currentLanguage = language;
-            plugin.getLogger().info("Language set to: " + language);
+        String normalized = normalizeLanguage(language);
+        if (hasLanguage(normalized)) {
+            this.currentLanguage = normalized;
+            plugin.getLogger().info("Language set to: " + normalized);
         } else {
-            plugin.getLogger().warning("Language not found: " + language);
+            this.currentLanguage = fallbackLanguage;
+            plugin.getLogger().warning("Language not found: " + language
+                    + "; using fallback " + fallbackLanguage);
         }
+    }
+
+    /**
+     * Sets the language used when the active language omits a key.
+     *
+     * @param language language code such as {@code en_US}
+     */
+    public void setFallbackLanguage(String language) {
+        fallbackLanguage = normalizeLanguage(language);
+    }
+
+    private boolean hasLanguage(String language) {
+        return languages.containsKey(language) || bundledLanguages.containsKey(language);
+    }
+
+    private String normalizeLanguage(String language) {
+        if (language == null || language.trim().isEmpty()) {
+            return BUNDLED_FALLBACK_LANGUAGE;
+        }
+        return language.trim().replace('-', '_');
     }
     
     /**
@@ -180,7 +220,7 @@ public class MessageManager {
      * @return The default language code
      */
     public String getDefaultLanguage() {
-        return defaultLanguage;
+        return fallbackLanguage;
     }
     
     /**
@@ -190,12 +230,9 @@ public class MessageManager {
      * @return true if the key exists
      */
     public boolean hasMessage(String key) {
-        YamlConfiguration langConfig = languages.get(currentLanguage);
-        if (langConfig != null && langConfig.contains(key)) {
-            return true;
-        }
-        langConfig = languages.get(defaultLanguage);
-        return langConfig != null && langConfig.contains(key);
+        return findMessage(currentLanguage, key) != null
+                || findMessage(fallbackLanguage, key) != null
+                || findBundledMessage(BUNDLED_FALLBACK_LANGUAGE, key) != null;
     }
     
     /**
@@ -203,6 +240,8 @@ public class MessageManager {
      */
     public void reload() {
         languages.clear();
+        bundledLanguages.clear();
+        missingKeys.clear();
         loadLanguages();
     }
 }

@@ -55,6 +55,9 @@ public final class SpongeUtil {
      */
     public static void clearSpongeWater(World world, int ox, int oy, int oz) {
         WorldConfiguration wcfg = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world);
+        if (wcfg == null) {
+            return;
+        }
 
         for (int cx = -wcfg.spongeRadius; cx <= wcfg.spongeRadius; cx++) {
             for (int cy = -wcfg.spongeRadius; cy <= wcfg.spongeRadius; cy++) {
@@ -111,6 +114,9 @@ public final class SpongeUtil {
      */
     public static void addSpongeWater(World world, int ox, int oy, int oz) {
         WorldConfiguration wcfg = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(world);
+        if (wcfg == null) {
+            return;
+        }
 
         // The negative x edge
         int cx = ox - wcfg.spongeRadius - 1;

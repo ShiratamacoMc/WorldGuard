@@ -28,6 +28,17 @@ public interface I18nSupport {
      * Reloads all language files from disk.
      */
     void reloadLanguages();
+
+    /**
+     * Gets a translated message for platform-independent command code.
+     *
+     * @param key message key
+     * @param placeholders optional placeholder key-value pairs
+     * @return the translated message, or the key when the platform has no translation
+     */
+    default String getMessage(String key, Object... placeholders) {
+        return key;
+    }
     
     /**
      * Gets whether internationalization is supported by this platform.

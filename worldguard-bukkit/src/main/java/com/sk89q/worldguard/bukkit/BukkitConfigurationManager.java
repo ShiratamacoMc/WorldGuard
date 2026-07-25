@@ -34,7 +34,6 @@ public class BukkitConfigurationManager extends YamlConfigurationManager {
 
     @Unreported private WorldGuardPlugin plugin;
     @Unreported private ConcurrentMap<String, BukkitWorldConfiguration> worlds = new ConcurrentHashMap<>();
-    @Unreported private BukkitWorldConfiguration defaultConfig;
 
     private boolean hasCommandBookGodMode;
     boolean extraStats;
@@ -57,11 +56,6 @@ public class BukkitConfigurationManager extends YamlConfigurationManager {
     public void load() {
         super.load();
         this.extraStats = getConfig().getBoolean("custom-metrics-charts", true);
-        // 创建一个默认配置对象，用于未列入白名单的世界
-        // 这样外部插件调用 API 不会收到 null，但不会生成配置文件
-        if (defaultConfig == null) {
-            defaultConfig = new BukkitWorldConfiguration(plugin, "__default__", this.getConfig(), false);
-        }
     }
 
     @Override
@@ -97,7 +91,7 @@ public class BukkitConfigurationManager extends YamlConfigurationManager {
      * Get the configuration for a world.
      *
      * @param world The world to get the configuration for
-     * @return {@code world}'s configuration
+     * @return {@code world}'s configuration, or {@code null} when the world is not whitelisted
      */
     @Override
     public BukkitWorldConfiguration get(World world) {
@@ -108,10 +102,7 @@ public class BukkitConfigurationManager extends YamlConfigurationManager {
     public BukkitWorldConfiguration get(String worldName) {
         // 检查世界是否列入白名单
         if (!isWorldWhitelisted(worldName)) {
-            // 未列入白名单的世界返回默认配置
-            // 为外部插件(如 MythicMobs)提供 API 访问,防止空指针
-            // 但不会创建配置文件,不会缓存,不会处理该世界
-            return defaultConfig;
+            return null;
         }
 
         BukkitWorldConfiguration config = worlds.get(worldName);
@@ -120,7 +111,8 @@ public class BukkitConfigurationManager extends YamlConfigurationManager {
         // 只为白名单中的世界创建和缓存配置
         while (config == null) {
             if (newConfig == null) {
-                newConfig = new BukkitWorldConfiguration(plugin, worldName, this.getConfig());
+                File configFile = new File(plugin.getDataFolder(), "worlds/" + worldName + "/config.yml");
+                newConfig = new BukkitWorldConfiguration(plugin, worldName, this.getConfig(), configFile.isFile());
             }
             worlds.putIfAbsent(worldName, newConfig);
             config = worlds.get(worldName);

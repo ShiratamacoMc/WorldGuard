@@ -25,6 +25,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.sk89q.worldguard.bukkit.cause.Cause;
 import com.sk89q.worldguard.bukkit.event.BulkEvent;
 import com.sk89q.worldguard.bukkit.event.DelegateEvent;
+import com.sk89q.worldguard.bukkit.event.WorldAwareEvent;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -45,7 +46,7 @@ import javax.annotation.Nullable;
  * This event is an internal event. We do not recommend handling or throwing
  * this event or its subclasses as the interface is highly subject to change.
  */
-abstract class AbstractBlockEvent extends DelegateEvent implements BulkEvent {
+abstract class AbstractBlockEvent extends DelegateEvent implements BulkEvent, WorldAwareEvent {
 
     private final World world;
     private List<Block> blocks;

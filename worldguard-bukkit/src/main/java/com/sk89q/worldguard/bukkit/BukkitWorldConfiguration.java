@@ -63,6 +63,7 @@ public class BukkitWorldConfiguration extends YamlWorldConfiguration {
     private static final TargetMatcherParser matcherParser = new TargetMatcherParser();
 
     @Unreported private String worldName;
+    private final boolean persistConfiguration;
 
     @Unreported private ChestProtection chestProtection = new BukkitSignChestProtection();
 
@@ -101,6 +102,7 @@ public class BukkitWorldConfiguration extends YamlWorldConfiguration {
 
         this.worldName = worldName;
         this.parentConfig = parentConfig;
+        this.persistConfiguration = createFiles;
 
         if (createFiles) {
             plugin.createDefaultConfiguration(configFile, "config_world.yml");
@@ -148,13 +150,15 @@ public class BukkitWorldConfiguration extends YamlWorldConfiguration {
      */
     @Override
     public void loadConfiguration() {
-        try {
-            config.load();
-        } catch (IOException e) {
-            log.log(Level.SEVERE, "Error reading configuration for world " + worldName + ": ", e);
-        } catch (YAMLException e) {
-            log.severe("Error parsing configuration for world " + worldName + ". ");
-            throw e;
+        if (persistConfiguration) {
+            try {
+                config.load();
+            } catch (IOException e) {
+                log.log(Level.SEVERE, "Error reading configuration for world " + worldName + ": ", e);
+            } catch (YAMLException e) {
+                log.severe("Error parsing configuration for world " + worldName + ". ");
+                throw e;
+            }
         }
 
         boolean needParentSave = false;
@@ -373,35 +377,39 @@ public class BukkitWorldConfiguration extends YamlWorldConfiguration {
                 blacklist.getLogger().close();
             }
 
-            // First load the blacklist data from worldguard-blacklist.txt
-            Blacklist blist = new Blacklist(useBlacklistAsWhitelist);
-            blist.load(blacklistFile);
-
-            // If the blacklist is empty, then set the field to null
-            // and save some resources
-            if (blist.isEmpty()) {
+            if (!blacklistFile.isFile()) {
                 this.blacklist = null;
             } else {
-                this.blacklist = blist;
-                if (summaryOnStart) {
-                    log.log(Level.INFO, "({0}) Blacklist loaded with {1} entries.",
-                            new Object[]{worldName, blacklist.getItemCount()});
-                }
+                // First load the blacklist data from worldguard-blacklist.txt
+                Blacklist blist = new Blacklist(useBlacklistAsWhitelist);
+                blist.load(blacklistFile);
 
-                BlacklistLoggerHandler blacklistLogger = blist.getLogger();
+                // If the blacklist is empty, then set the field to null
+                // and save some resources
+                if (blist.isEmpty()) {
+                    this.blacklist = null;
+                } else {
+                    this.blacklist = blist;
+                    if (summaryOnStart) {
+                        log.log(Level.INFO, "({0}) Blacklist loaded with {1} entries.",
+                                new Object[]{worldName, blacklist.getItemCount()});
+                    }
 
-                if (logDatabase) {
-                    blacklistLogger.addHandler(new DatabaseHandler(dsn, user, pass, table, worldName, log));
-                }
+                    BlacklistLoggerHandler blacklistLogger = blist.getLogger();
 
-                if (logConsole) {
-                    blacklistLogger.addHandler(new ConsoleHandler(worldName, log));
-                }
+                    if (logDatabase) {
+                        blacklistLogger.addHandler(new DatabaseHandler(dsn, user, pass, table, worldName, log));
+                    }
 
-                if (logFile) {
-                    FileHandler handler =
-                            new FileHandler(logFilePattern, logFileCacheSize, worldName, log);
-                    blacklistLogger.addHandler(handler);
+                    if (logConsole) {
+                        blacklistLogger.addHandler(new ConsoleHandler(worldName, log));
+                    }
+
+                    if (logFile) {
+                        FileHandler handler =
+                                new FileHandler(logFilePattern, logFileCacheSize, worldName, log);
+                        blacklistLogger.addHandler(handler);
+                    }
                 }
             }
         } catch (FileNotFoundException e) {
@@ -442,7 +450,9 @@ public class BukkitWorldConfiguration extends YamlWorldConfiguration {
 
         config.setHeader(CONFIG_HEADER);
 
-        config.save();
+        if (persistConfiguration) {
+            config.save();
+        }
         if (needParentSave) {
             parentConfig.save();
         }

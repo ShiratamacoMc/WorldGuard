@@ -282,10 +282,16 @@ public class BukkitWorldGuardPlatform implements WorldGuardPlatform, I18nSupport
     public void reloadLanguages() {
         WorldGuardPlugin plugin = WorldGuardPlugin.inst();
         if (plugin != null && plugin.getMessageManager() != null) {
-            plugin.getMessageManager().reload();
             plugin.getI18nConfig().load();
+            plugin.getMessageManager().setFallbackLanguage(plugin.getI18nConfig().getFallbackLanguage());
+            plugin.getMessageManager().reload();
             plugin.getMessageManager().setLanguage(plugin.getI18nConfig().getLanguage());
         }
+    }
+
+    @Override
+    public String getMessage(String key, Object... placeholders) {
+        return WorldGuardPlugin.inst().getMessageManager().getMessage(key, placeholders);
     }
     
     @Override

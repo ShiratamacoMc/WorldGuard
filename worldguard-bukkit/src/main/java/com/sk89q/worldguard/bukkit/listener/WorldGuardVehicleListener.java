@@ -56,6 +56,9 @@ public class WorldGuardVehicleListener extends AbstractListener {
         }
         World world = vehicle.getWorld();
         WorldConfiguration wcfg = getWorldConfig(world);
+        if (wcfg == null) {
+            return;
+        }
         org.bukkit.Location from = event.getFrom();
         org.bukkit.Location to = event.getTo();
         if (wcfg.useRegions) {

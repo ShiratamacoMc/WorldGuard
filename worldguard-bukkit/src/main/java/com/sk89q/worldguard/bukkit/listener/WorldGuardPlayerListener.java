@@ -110,7 +110,7 @@ public class WorldGuardPlayerListener extends AbstractListener {
         ConfigurationManager cfg = getConfig();
         WorldConfiguration wcfg = getWorldConfig(world);
 
-        if (cfg.activityHaltToggle) {
+        if (cfg.activityHaltToggle && wcfg != null) {
             messageHelper.sendMessage(player, "system.halt-activity");
 
             int removed = 0;
@@ -131,7 +131,9 @@ public class WorldGuardPlayerListener extends AbstractListener {
             messageHelper.sendMessage(player, "system.fire-spread-disabled");
         }
 
-        Events.fire(new ProcessPlayerEvent(player));
+        if (wcfg != null) {
+            Events.fire(new ProcessPlayerEvent(player));
+        }
         WorldGuard.getInstance().getExecutorService().submit(() ->
             WorldGuard.getInstance().getProfileCache().put(new Profile(player.getUniqueId(), player.getName())));
     }
@@ -373,10 +375,13 @@ public class WorldGuardPlayerListener extends AbstractListener {
         if (com.sk89q.worldguard.bukkit.util.Entities.isNPC(player)) return;
         LocalPlayer localPlayer = getPlugin().wrapPlayer(player);
         ConfigurationManager cfg = getConfig();
-        WorldConfiguration wcfg = getWorldConfig(player.getWorld());
-        if (wcfg == null) return;
+        WorldConfiguration sourceConfig = getWorldConfig(player.getWorld());
+        WorldConfiguration targetConfig = getWorldConfig(event.getTo().getWorld());
+        if (sourceConfig == null && targetConfig == null) return;
 
-        if (wcfg.useRegions && cfg.usePlayerTeleports) {
+        if (cfg.usePlayerTeleports
+                && ((sourceConfig != null && sourceConfig.useRegions)
+                || (targetConfig != null && targetConfig.useRegions))) {
             RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
             ApplicableRegionSet set = query.getApplicableRegions(BukkitAdapter.adapt(event.getTo()));
             ApplicableRegionSet setFrom = query.getApplicableRegions(BukkitAdapter.adapt(event.getFrom()));
