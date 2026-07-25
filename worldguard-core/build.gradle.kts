@@ -1,8 +1,4 @@
-import org.cadixdev.gradle.licenser.LicenseExtension
-import org.gradle.api.plugins.quality.Checkstyle
-
 plugins {
-    `java-library`
     id("buildlogic.core-and-platform")
 }
 
@@ -38,12 +34,6 @@ tasks.compileJava {
     options.compilerArgs.add("-Aarg.name.key.prefix=")
 }
 
-configure<LicenseExtension> {
-    exclude {
-        it.file.startsWith(project.layout.buildDirectory.get().asFile)
-    }
-}
-
 configure<PublishingExtension> {
     publications.named<MavenPublication>("maven") {
         artifactId = the<BasePluginExtension>().archivesName.get()
@@ -51,11 +41,3 @@ configure<PublishingExtension> {
     }
 }
 
-// Disable checkstyle and test tasks
-tasks.withType<Checkstyle>().configureEach {
-    enabled = false
-}
-
-tasks.named<Test>("test") {
-    enabled = false
-}

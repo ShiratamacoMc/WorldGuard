@@ -476,7 +476,8 @@ public class WorldGuardBlockListener extends AbstractListener {
         WorldConfiguration wcfg = getWorldConfig(event.getBlock().getWorld());
         if (wcfg == null) return;
 
-        Material type = event.getNewState().getType();
+        Material oldType = event.getBlock().getType();
+        Material newType = event.getNewState().getType();
 
         if (event instanceof EntityBlockFormEvent) {
             if (((EntityBlockFormEvent) event).getEntity() instanceof Snowman) {
@@ -488,7 +489,7 @@ public class WorldGuardBlockListener extends AbstractListener {
             return;
         }
 
-        if (type == Material.ICE) {
+        if (newType == Material.ICE) {
             if (wcfg.disableIceFormation) {
                 event.setCancelled(true);
                 return;
@@ -500,7 +501,7 @@ public class WorldGuardBlockListener extends AbstractListener {
             }
         }
 
-        if (type == Material.SNOW) {
+        if (newType == Material.SNOW) {
             if (wcfg.disableSnowFormation) {
                 event.setCancelled(true);
                 return;
@@ -520,13 +521,26 @@ public class WorldGuardBlockListener extends AbstractListener {
             }
         }
 
-        if (Materials.isUnwaxedCopper(event.getBlock().getType())) {
+        if (Materials.isUnwaxedCopper(oldType)) {
             if (wcfg.disableCopperBlockFade) {
                 event.setCancelled(true);
                 return;
             }
             if (wcfg.useRegions && !StateFlag.test(getRegionQuery()
                     .queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.COPPER_FADE))) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
+        if (oldType == Material.LAVA && !Materials.isLiquid(newType)) {
+            if (wcfg.disableLavaHarden) {
+                event.setCancelled(true);
+                return;
+            }
+
+            if (wcfg.useRegions && !StateFlag.test(WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery()
+                .queryState(BukkitAdapter.adapt(event.getBlock().getLocation()), (RegionAssociable) null, Flags.LAVA_HARDEN))) {
                 event.setCancelled(true);
                 return;
             }

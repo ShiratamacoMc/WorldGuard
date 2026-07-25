@@ -1,8 +1,8 @@
+import buildlogic.internalVersion
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.plugins.quality.Checkstyle
 
 plugins {
-    `java-library`
     id("buildlogic.platform")
 }
 
@@ -32,17 +32,18 @@ dependencies {
 }
 
 tasks.named<Copy>("processResources") {
-    val internalVersion = project.ext["internalVersion"]
+    val internalVersion = project.internalVersion
     inputs.property("internalVersion", internalVersion)
     filesMatching("plugin.yml") {
-        expand("internalVersion" to internalVersion)
+        expand("internalVersion" to internalVersion.get())
     }
 }
 
 tasks.named<ShadowJar>("shadowJar") {
     dependencies {
         include(dependency(":worldguard-core"))
-        include(dependency("org.bstats:"))
+        include(dependency("org.bstats:bstats-bukkit"))
+        include(dependency("org.bstats:bstats-base"))
         include(dependency("io.papermc:paperlib"))
         
         // Adventure Core
