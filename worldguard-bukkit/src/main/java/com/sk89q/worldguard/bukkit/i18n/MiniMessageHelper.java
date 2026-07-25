@@ -19,12 +19,12 @@
 
 package com.sk89q.worldguard.bukkit.i18n;
 
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -38,13 +38,9 @@ import java.util.List;
  */
 public class MiniMessageHelper {
     
-    private final Plugin plugin;
-    private final BukkitAudiences audiences;
     private final MiniMessage miniMessage;
     
     public MiniMessageHelper(Plugin plugin) {
-        this.plugin = plugin;
-        this.audiences = BukkitAudiences.create(plugin);
         this.miniMessage = MiniMessage.miniMessage();
     }
     
@@ -89,7 +85,7 @@ public class MiniMessageHelper {
      */
     public void sendMessage(CommandSender sender, String message, Object... placeholders) {
         Component component = parse(message, placeholders);
-        audiences.sender(sender).sendMessage(component);
+        sender.sendMessage(component);
     }
 
     /**
@@ -99,7 +95,7 @@ public class MiniMessageHelper {
      * @param component component to send
      */
     public void sendComponent(CommandSender sender, Component component) {
-        audiences.sender(sender).sendMessage(component);
+        sender.sendMessage(component);
     }
     
     /**
@@ -111,7 +107,7 @@ public class MiniMessageHelper {
      */
     public void sendActionBar(Player player, String message, Object... placeholders) {
         Component component = parse(message, placeholders);
-        audiences.player(player).sendActionBar(component);
+        player.sendActionBar(component);
     }
     
     /**
@@ -136,7 +132,7 @@ public class MiniMessageHelper {
         );
         
         Title titleObj = Title.title(titleComponent, subtitleComponent, times);
-        audiences.player(player).showTitle(titleObj);
+        player.showTitle(titleObj);
     }
     
     /**
@@ -159,7 +155,9 @@ public class MiniMessageHelper {
      */
     public void broadcast(String message, Object... placeholders) {
         Component component = parse(message, placeholders);
-        audiences.all().sendMessage(component);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.sendMessage(component);
+        }
     }
     
     /**
@@ -171,25 +169,18 @@ public class MiniMessageHelper {
      */
     public void broadcastWithPermission(String message, String permission, Object... placeholders) {
         Component component = parse(message, placeholders);
-        audiences.permission(permission).sendMessage(component);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.hasPermission(permission)) {
+                player.sendMessage(component);
+            }
+        }
     }
     
     /**
-     * Gets the BukkitAudiences instance.
-     * 
-     * @return The BukkitAudiences instance
-     */
-    public BukkitAudiences getAudiences() {
-        return audiences;
-    }
-    
-    /**
-     * Closes the audiences manager. Should be called on plugin disable.
+     * Releases resources held by this helper.
      */
     public void close() {
-        if (audiences != null) {
-            audiences.close();
-        }
+        // Paper owns the native Adventure audience lifecycle.
     }
 }
 

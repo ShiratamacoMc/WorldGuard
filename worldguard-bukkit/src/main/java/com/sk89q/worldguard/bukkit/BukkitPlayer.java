@@ -34,6 +34,7 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.BanList;
 import org.bukkit.BanList.Type;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 
@@ -225,7 +226,48 @@ public class BukkitPlayer extends com.sk89q.worldedit.bukkit.BukkitPlayer implem
     @SuppressWarnings("deprecation")
     public void printRaw(String msg) {
         if (!silenced) {
-            super.printRaw(msg);
+            sendLegacyMessage(msg);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void print(String msg) {
+        if (!silenced) {
+            sendLegacyMessage(msg);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void printError(String msg) {
+        if (!silenced) {
+            sendLegacyMessage(ChatColor.RED + msg);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void printDebug(String msg) {
+        if (!silenced) {
+            sendLegacyMessage(ChatColor.GRAY + msg);
+        }
+    }
+
+    @Override
+    public void print(com.sk89q.worldedit.util.formatting.text.Component component) {
+        if (!silenced) {
+            // Preserve styles and interactions while bypassing WorldEditText.format().
+            String json = com.sk89q.worldedit.util.formatting.text.serializer.gson.GsonComponentSerializer.INSTANCE
+                    .serialize(component);
+            getPlayer().sendMessage(net.kyori.adventure.text.serializer.gson.GsonComponentSerializer.gson()
+                    .deserialize(json));
+        }
+    }
+
+    private void sendLegacyMessage(String message) {
+        for (String line : message.split("\\n", 0)) {
+            getPlayer().sendMessage(line);
         }
     }
 

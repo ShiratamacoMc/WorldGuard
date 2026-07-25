@@ -29,11 +29,22 @@ worldedit:
 debug-command:
   no-nearby-block: "你没有看向足够近的方块。"
   no-nearby-entity: "你没有看向足够近的实体。"
+  ignore-following-messages: "（请忽略随后可能立即出现的消息。）"
+  report-printed-console: "报告已输出到控制台。"
+  report-also-printed-console: "报告也已输出到控制台。"
   testing-block-break: "正在测试方块破坏："
   testing-block-place: "正在测试方块放置："
   testing-block-interact: "正在测试方块交互："
   testing-entity-damage: "正在测试实体伤害："
-  
+
+domain:
+  groups: "组"
+  name-only: "仅名称"
+  last-known-name-prefix: "UUID 最后记录的名称："
+  unresolved-name-prefix: "无法解析以下名称："
+  unknown-uuids: "{count} 个未知 UUID"
+  click-to-copy: "点击复制"
+
 # 区域消息
 region:
   not-found: "<red>未找到区域'<region>'。</red>"
@@ -135,6 +146,7 @@ flag-helper:
 
 # 黑名单消息
 blacklist:
+  default-denied: "你不被允许对 {target} 执行 {action}。"
   notify: "<red>你不被允许使用 <item>。</red>"
   reason: "<red>原因：<reason></red>"
   
@@ -221,7 +233,7 @@ command-worldguard:
 
 # 交互式帮助
 help:
-  header: "<dark_gray><st>--------------------------------</st></dark_gray> <gold>{title}</gold> <gray>({page}/{pages})</gray> <dark_gray><st>--------------------------------</st></dark_gray>"
+  header: "<dark_gray><st>----------</st></dark_gray> <gold>{title}</gold> <gray>({page}/{pages})</gray> <dark_gray><st>----------</st></dark_gray>"
   title-worldguard: "WorldGuard 帮助"
   title-region: "区域帮助"
   page: "<gray>第 {page}/{pages} 页</gray>"
@@ -280,6 +292,8 @@ title:
 error:
   console-only: "<red>此命令只能从控制台执行。</red>"
   invalid-args: "<red>参数无效。</red>"
+  too-few-arguments: "参数不足。"
+  too-many-arguments: "参数过多。"
   command-error: "<red>执行此命令时发生错误。</red>"
   command-message: "<red>{message}</red>"
   command-usage: "<red>{usage}</red>"

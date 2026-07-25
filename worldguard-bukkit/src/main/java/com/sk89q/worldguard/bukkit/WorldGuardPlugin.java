@@ -389,7 +389,7 @@ public class WorldGuardPlugin extends JavaPlugin implements CommandInspector, Ta
             }
         } catch (com.sk89q.minecraft.util.commands.CommandUsageException e) {
             miniMessageHelper.sendMessage(sender, messageManager.getMessage("error.command-message",
-                    "message", e.getMessage()));
+                    "message", localizeCommandUsageMessage(e.getMessage())));
             miniMessageHelper.sendMessage(sender, messageManager.getMessage("error.command-usage",
                     "usage", e.getUsage()));
         } catch (com.sk89q.minecraft.util.commands.WrappedCommandException e) {
@@ -401,6 +401,18 @@ public class WorldGuardPlugin extends JavaPlugin implements CommandInspector, Ta
         }
 
         return true;
+    }
+
+    private String localizeCommandUsageMessage(String message) {
+        if ("Too few arguments.".equals(message)) {
+            return messageManager.getMessage("error.too-few-arguments");
+        }
+        if ("Too many arguments.".equals(message)) {
+            return messageManager.getMessage("error.too-many-arguments");
+        }
+        return message == null || message.isEmpty()
+                ? messageManager.getMessage("error.invalid-args")
+                : message;
     }
 
     @Override

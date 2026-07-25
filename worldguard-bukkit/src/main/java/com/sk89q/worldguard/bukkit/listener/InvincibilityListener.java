@@ -82,7 +82,6 @@ public class InvincibilityListener extends AbstractListener {
                         && !(attacker instanceof Tameable && ((Tameable) attacker).isTamed())) {
                     attacker.remove();
                 }
-                }
             }
         }
     }

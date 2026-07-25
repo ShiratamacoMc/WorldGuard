@@ -29,11 +29,22 @@ worldedit:
 debug-command:
   no-nearby-block: "You are not looking at a nearby block."
   no-nearby-entity: "You are not looking at a nearby entity."
+  ignore-following-messages: "(Please ignore any messages that may immediately follow.)"
+  report-printed-console: "The report was printed to console."
+  report-also-printed-console: "The report was also printed to console."
   testing-block-break: "Testing block break at "
   testing-block-place: "Testing block place at "
   testing-block-interact: "Testing block interaction at "
   testing-entity-damage: "Testing entity damage at "
-  
+
+domain:
+  groups: "Groups"
+  name-only: "Name only"
+  last-known-name-prefix: "Last known name of UUID: "
+  unresolved-name-prefix: "Unable to resolve the name for:"
+  unknown-uuids: "{count} unknown UUID(s)"
+  click-to-copy: "Click to copy"
+
 # Region Messages
 region:
   not-found: "<red>Region '<region>' not found.</red>"
@@ -135,6 +146,7 @@ flag-helper:
 
 # Blacklist Messages
 blacklist:
+  default-denied: "You're not allowed to {action} {target}."
   notify: "<red>You are not allowed to use <item>.</red>"
   reason: "<red>Reason: <reason></red>"
   
@@ -250,15 +262,15 @@ help:
   region-bypass: "Toggle region-protection bypass."
   region-teleport: "Teleport to a region."
   
-  # Region commands
-  region-define: "Usage: /region define <id> [owner1] [owner2] ..."
-  region-redefine: "Usage: /region redefine <id>"
-  region-claim: "Usage: /region claim <id>"
+  # Legacy usage references
+  usage-region-define: "Usage: /region define <id> [owner1] [owner2] ..."
+  usage-region-redefine: "Usage: /region redefine <id>"
+  usage-region-claim: "Usage: /region claim <id>"
   region-select: "<green>Region '<region>' selected.</green>"
-  region-info: "Usage: /region info <id>"
-  region-list: "Usage: /region list [world] [page]"
+  usage-region-info: "Usage: /region info <id>"
+  usage-region-list: "Usage: /region list [world] [page]"
   region-delete: "Usage: /region delete <id>"
-  region-priority: "Usage: /region priority <id> <priority>"
+  usage-region-priority: "Usage: /region priority <id> <priority>"
   region-setparent: "Usage: /region setparent <id> [parent-id]"
   
   # Toggle commands
@@ -286,6 +298,8 @@ title:
 error:
   console-only: "<red>This command can only be executed from console.</red>"
   invalid-args: "<red>Invalid arguments.</red>"
+  too-few-arguments: "Too few arguments."
+  too-many-arguments: "Too many arguments."
   command-error: "<red>An error occurred while executing this command.</red>"
   command-message: "<red>{message}</red>"
   command-usage: "<red>{usage}</red>"
@@ -439,7 +453,6 @@ command-region:
   update-success: "Region '<region>' has been updated with a new area."
   update-failed: "Failed to update the region '<region>'"
   claim-success: "A new region has been claimed named '<region>'."
-  claim-too-large: "This region is too large to claim."
   claim-max-volume: "Max. volume: <max>, your volume: <volume>"
   remove-removing: "Removing region '<region>' in '<world>'"
   load-loading: "Loading region data for '<world>'."

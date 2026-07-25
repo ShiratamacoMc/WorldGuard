@@ -25,10 +25,10 @@ dependencies {
     "implementation"(libs.paperLib)
     "implementation"(libs.bstats.bukkit)
     
-    // Adventure dependencies for MiniMessage support
-    "implementation"(libs.adventure.api)
-    "implementation"(libs.adventure.text.minimessage)
-    "implementation"(libs.adventure.platform.bukkit)
+    // Paper supplies the native Adventure API used for message delivery.
+    "compileOnly"(libs.adventure.api)
+    "compileOnly"(libs.adventure.text.minimessage)
+    "compileOnly"(libs.adventure.text.serializer.gson)
 }
 
 tasks.named<Copy>("processResources") {
@@ -46,37 +46,8 @@ tasks.named<ShadowJar>("shadowJar") {
         include(dependency("org.bstats:bstats-base"))
         include(dependency("io.papermc:paperlib"))
         
-        // Adventure Core
-        include(dependency("net.kyori:adventure-api"))
-        include(dependency("net.kyori:adventure-key"))
-        include(dependency("net.kyori:adventure-nbt"))
-        include(dependency("net.kyori:adventure-text-minimessage"))
-        
-        // Adventure Platform
-        include(dependency("net.kyori:adventure-platform-bukkit"))
-        include(dependency("net.kyori:adventure-platform-api"))
-        include(dependency("net.kyori:adventure-platform-facet"))
-        include(dependency("net.kyori:adventure-platform-viaversion"))
-        
-        // Adventure Serializers
-        include(dependency("net.kyori:adventure-text-serializer-legacy"))
-        include(dependency("net.kyori:adventure-text-serializer-plain"))
-        include(dependency("net.kyori:adventure-text-serializer-gson"))
-        include(dependency("net.kyori:adventure-text-serializer-gson-legacy-impl"))
-        include(dependency("net.kyori:adventure-text-serializer-bungeecord"))
-        include(dependency("net.kyori:adventure-text-serializer-commons"))
-        include(dependency("net.kyori:adventure-text-serializer-json"))
-        
-        // Examination
-        include(dependency("net.kyori:examination-api"))
-        include(dependency("net.kyori:examination-string"))
-        
-        // Option (required by Adventure)
-        include(dependency("net.kyori:option"))
-
         relocate("org.bstats", "com.sk89q.worldguard.bukkit.bstats")
         relocate("io.papermc.lib", "com.sk89q.worldguard.bukkit.paperlib")
-        relocate("net.kyori", "com.sk89q.worldguard.bukkit.libs.kyori")
     }
 }
 

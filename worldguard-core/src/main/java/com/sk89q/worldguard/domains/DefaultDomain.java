@@ -31,6 +31,7 @@ import com.sk89q.worldedit.util.formatting.text.event.HoverEvent;
 import com.sk89q.worldedit.util.formatting.text.format.TextColor;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.util.ChangeTracked;
+import com.sk89q.worldguard.util.i18n.Messages;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -379,7 +380,8 @@ public class DefaultDomain implements Domain, ChangeTracked {
                 builder.append(TextComponent.of(", "));
             }
         }
-        return builder.build().hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of("Groups")));
+        return builder.build().hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT,
+                TextComponent.of(Messages.get("domain.groups"))));
     }
 
     private Component toPlayersComponent(ProfileCache cache) {
@@ -411,14 +413,18 @@ public class DefaultDomain implements Domain, ChangeTracked {
             final UUID uuid = profileMap.get(name);
             if (uuid == null) {
                 return TextComponent.of(name, TextColor.YELLOW)
-                        .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of("Name only", TextColor.GRAY)
-                            .append(TextComponent.newline()).append(TextComponent.of("Click to copy"))))
+                        .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT,
+                                TextComponent.of(Messages.get("domain.name-only"), TextColor.GRAY)
+                                        .append(TextComponent.newline())
+                                        .append(TextComponent.of(Messages.get("domain.click-to-copy")))))
                         .clickEvent(ClickEvent.of(ClickEvent.Action.COPY_TO_CLIPBOARD, name));
             } else {
                 return TextComponent.of(name, TextColor.YELLOW)
-                        .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of("Last known name of uuid: ", TextColor.GRAY)
-                            .append(TextComponent.of(uuid.toString(), TextColor.WHITE))
-                            .append(TextComponent.newline()).append(TextComponent.of("Click to copy"))))
+                        .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT,
+                                TextComponent.of(Messages.get("domain.last-known-name-prefix"), TextColor.GRAY)
+                                        .append(TextComponent.of(uuid.toString(), TextColor.WHITE))
+                                        .append(TextComponent.newline())
+                                        .append(TextComponent.of(Messages.get("domain.click-to-copy")))))
                         .clickEvent(ClickEvent.of(ClickEvent.Action.COPY_TO_CLIPBOARD, uuid.toString()));
             }
         }).iterator();
@@ -430,11 +436,13 @@ public class DefaultDomain implements Domain, ChangeTracked {
         }
 
         if (!uuids.isEmpty()) {
-            builder.append(TextComponent.of(uuids.size() + " unknown uuid" + (uuids.size() == 1 ? "" : "s"), TextColor.GRAY)
-                    .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, TextComponent.of("Unable to resolve the name for:", TextColor.GRAY)
-                        .append(TextComponent.newline())
-                        .append(TextComponent.of(String.join("\n", uuids), TextColor.WHITE))
-                        .append(TextComponent.newline().append(TextComponent.of("Click to copy")))))
+            builder.append(TextComponent.of(Messages.get("domain.unknown-uuids", "count", uuids.size()), TextColor.GRAY)
+                    .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT,
+                            TextComponent.of(Messages.get("domain.unresolved-name-prefix"), TextColor.GRAY)
+                                    .append(TextComponent.newline())
+                                    .append(TextComponent.of(String.join("\n", uuids), TextColor.WHITE))
+                                    .append(TextComponent.newline())
+                                    .append(TextComponent.of(Messages.get("domain.click-to-copy")))))
                     .clickEvent(ClickEvent.of(ClickEvent.Action.COPY_TO_CLIPBOARD, String.join(",", uuids))));
         }
 

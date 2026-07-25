@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Manages internationalized messages for WorldGuard.
@@ -73,6 +75,7 @@ public class MessageManager {
             for (File langFile : langFiles) {
                 String langCode = langFile.getName().replace(".yml", "");
                 try {
+                    repairLegacyDuplicateKeys(langFile);
                     YamlConfiguration config = YamlConfiguration.loadConfiguration(langFile);
                     languages.put(langCode, config);
                     plugin.getLogger().info("Loaded language file: " + langCode);
@@ -81,6 +84,59 @@ public class MessageManager {
                 }
             }
         }
+    }
+
+    /**
+     * Repairs duplicate keys produced by earlier bundled language files before Bukkit parses them.
+     */
+    private void repairLegacyDuplicateKeys(File langFile) throws IOException {
+        String original = Files.readString(langFile.toPath(), StandardCharsets.UTF_8);
+        String repaired = mergeDuplicateRootSection(original, "blacklist");
+        repaired = repaired.replaceAll("(?m)^  (?:region-define|region-redefine|region-claim|region-info|region-list|region-priority):\\s*\"Usage:.*\"\\R?", "");
+        repaired = retainFirstLine(repaired, Pattern.compile("(?m)^  claim-too-large:.*\\R?"));
+        if (!original.equals(repaired)) {
+            Files.writeString(langFile.toPath(), repaired, StandardCharsets.UTF_8);
+            plugin.getLogger().info("Updated duplicate keys in language file: " + langFile.getName());
+        }
+    }
+
+    private String mergeDuplicateRootSection(String content, String section) {
+        Pattern pattern = Pattern.compile("(?m)^" + Pattern.quote(section) + ":\\R((?:^[ \\t]+.*\\R|^\\R)*)");
+        Matcher matcher = pattern.matcher(content);
+        if (!matcher.find()) {
+            return content;
+        }
+        int firstStart = matcher.start();
+        int firstEnd = matcher.end();
+        String firstBody = matcher.group(1);
+        if (!matcher.find()) {
+            return content;
+        }
+
+        String withoutFirst = content.substring(0, firstStart) + content.substring(firstEnd);
+        Matcher remaining = pattern.matcher(withoutFirst);
+        if (!remaining.find()) {
+            return content;
+        }
+        String lineEnding = content.contains("\r\n") ? "\r\n" : "\n";
+        return withoutFirst.substring(0, remaining.start()) + section + ":" + lineEnding
+                + firstBody + remaining.group(1) + withoutFirst.substring(remaining.end());
+    }
+
+    private String retainFirstLine(String content, Pattern pattern) {
+        Matcher matcher = pattern.matcher(content);
+        StringBuffer result = new StringBuffer();
+        boolean found = false;
+        while (matcher.find()) {
+            if (found) {
+                matcher.appendReplacement(result, "");
+            } else {
+                found = true;
+                matcher.appendReplacement(result, Matcher.quoteReplacement(matcher.group()));
+            }
+        }
+        matcher.appendTail(result);
+        return result.toString();
     }
     
     private void saveDefaultLanguageFile(String fileName) {

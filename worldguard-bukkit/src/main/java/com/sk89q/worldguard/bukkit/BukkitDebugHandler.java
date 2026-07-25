@@ -35,6 +35,7 @@ import com.sk89q.worldguard.bukkit.event.debug.LoggingEntityDamageByEntityEvent;
 import com.sk89q.worldguard.bukkit.event.debug.LoggingPlayerInteractEvent;
 import com.sk89q.worldguard.bukkit.util.report.CancelReport;
 import com.sk89q.worldguard.internal.platform.DebugHandler;
+import com.sk89q.worldguard.util.i18n.Messages;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -82,7 +83,7 @@ public class BukkitDebugHandler implements DebugHandler {
             }
 
             target.sendMessage(
-                    ChatColor.RED + "(Please ignore any messages that may immediately follow.)");
+                    ChatColor.RED + Messages.get("debug-command.ignore-following-messages"));
         }
 
         Bukkit.getPluginManager().callEvent(event);
@@ -92,7 +93,7 @@ public class BukkitDebugHandler implements DebugHandler {
         String result = report.toString();
 
         if (stacktraceMode) {
-            receiver.sendMessage(ChatColor.GRAY + "The report was printed to console.");
+            receiver.sendMessage(ChatColor.GRAY + Messages.get("debug-command.report-printed-console"));
             log.info("Event report for " + receiver.getName() + ":\n\n" + result);
 
             plugin.checkPermission(receiver, "worldguard.debug.pastebin");
@@ -102,7 +103,7 @@ public class BukkitDebugHandler implements DebugHandler {
             receiver.sendMessage(result.replaceAll("(?m)^", ChatColor.AQUA.toString()));
 
             if (result.length() >= 500 && !isConsole) {
-                receiver.sendMessage(ChatColor.GRAY + "The report was also printed to console.");
+                receiver.sendMessage(ChatColor.GRAY + Messages.get("debug-command.report-also-printed-console"));
                 log.info("Event report for " + receiver.getName() + ":\n\n" + result);
             }
         }
